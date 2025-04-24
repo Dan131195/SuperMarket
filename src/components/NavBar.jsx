@@ -15,11 +15,14 @@ const NavBar = () => {
   };
 
   return (
-    <nav className="navbar navbar-expand-md">
-      <div className="container-fluid">
-        <Link className="navbar-brand" to="/">
+    <nav className="navbar navbar-expand-md sticky-top ">
+      <div className="container">
+        {/* Logo */}
+        <Link className="navbar-brand d-flex align-items-center" to="/">
           <img src={logoImg} alt="Logo Market" className="logoImg" />
         </Link>
+
+        {/* Toggler per mobile */}
         <button
           className="navbar-toggler"
           type="button"
@@ -29,67 +32,78 @@ const NavBar = () => {
           aria-expanded="false"
           aria-label="Toggle navigation"
         >
-          <span className="">
-            <i className="bi bi-list text-light"></i>
-          </span>
+          <i className="bi bi-list text-light"></i>
         </button>
-        <div className="collapse navbar-collapse " id="navbarSupportedContent">
-          <ul className="navbar-nav me-auto mb-2 mb-lg-0 d-flex justify-content-between align-items-center w-100">
-            <div className="d-flex justify-content-between justify-content-md-start w-75 w-50-lg align-items-center order-1">
-              <li className="nav-item">
+
+        {/* Menu */}
+        <div className="collapse navbar-collapse" id="navbarSupportedContent">
+          <div className="d-flex justify-content-between align-items-center w-100">
+            <ul className="navbar-nav">
+              <li className="nav-item d-inline linkNavBar">
                 <Link
-                  className="nav-link text-light"
-                  aria-current="page"
+                  className="nav-link text-light linkNavBar d-inline"
                   to="/"
                 >
                   <i className="bi bi-house-door me-1"></i>Home
                 </Link>
               </li>
-              <li className="nav-item ms-lg-0 ms-2">
-                <Link to="/prodotti" className="nav-link text-light">
+              <li className="nav-item d-inline linkNavBar">
+                <Link
+                  className="nav-link text-light linkNavBar d-inline"
+                  to="/prodotti"
+                >
                   <i className="bi bi-list-ul me-1"></i>Prodotti
                 </Link>
               </li>
-              <li className="nav-item ms-lg-0 ms-2">
-                <Link to="/prodotti" className="nav-link text-light">
+              <li className="nav-item d-inline linkNavBar">
+                <Link
+                  className="nav-link text-light linkNavBar d-inline"
+                  to="/carrello"
+                >
                   <i className="bi bi-cart4 me-1"></i>Carrello
                 </Link>
               </li>
-            </div>
+            </ul>
 
-            <div className="btn-group order-2 order-lg-3 d-inline">
+            {/* Login / Profilo */}
+            <div className="d-flex align-items-center">
               {isAuthenticated ? (
-                <>
+                <div className="dropdown">
                   <button
-                    type="button"
-                    className="bg-transparent text-light border-0 dropdown-toggle"
+                    className="bg-transparent text-light border-0 dropdown-toggle linkNavBar"
                     data-bs-toggle="dropdown"
-                    aria-expanded="false"
                   >
-                    <i className="bi bi-person-fill"></i>{" "}
+                    <i className="bi bi-person-fill me-1"></i>
                     {user?.name || "Profilo"}
                   </button>
-                  <ul className="dropdown-menu dropdown-menu-end">
-                    <li>
-                      <Link className="dropdown-item" to="/profilo">
-                        Il mio profilo
+                  <ul className="dropdown-menu dropdown-menu-end profileLink border-white ">
+                    <li className="profileLink">
+                      <Link
+                        className="dropdown-item profileLink  profileLinkHover"
+                        to="/profilo"
+                      >
+                        <i className="bi bi-person-lines-fill"></i> Il mio
+                        profilo
                       </Link>
                     </li>
-                    <li>
-                      <Link className="dropdown-item" to="/ordini">
-                        I miei ordini
+                    <li className="profileLink">
+                      <Link
+                        className="dropdown-item profileLink  profileLinkHover"
+                        to="/ordini"
+                      >
+                        <i className="bi bi-bag-check-fill"></i> I miei ordini
                       </Link>
                     </li>
-                    <li>
+                    <li className="profileLink border-top border-1">
                       <button
-                        className="dropdown-item text-danger"
+                        className="dropdown-item text-danger fw-bold profileLinkHover"
                         onClick={handleLogout}
                       >
-                        Logout
+                        <i className="bi bi-person-fill-slash fs-5"></i> Logout
                       </button>
                     </li>
                   </ul>
-                </>
+                </div>
               ) : (
                 <button
                   className="btn btn-outline-light"
@@ -99,7 +113,7 @@ const NavBar = () => {
                 </button>
               )}
             </div>
-          </ul>
+          </div>
         </div>
       </div>
     </nav>

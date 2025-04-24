@@ -19,6 +19,9 @@ body,
 .main {
   flex: 1;
 }
+.spinner {
+  width: 500px;
+}
 
 nav,
 footer,
@@ -29,12 +32,30 @@ body,
   background-color: #4c651c;
 }
 
+.navbarContainer {
+  width: 80%;
+  margin: auto;
+}
+
+.linkNavBar:hover {
+  color: #cc7a08 !important;
+  transform: scale(1.04);
+}
+
 nav {
-  border-bottom: 5px solid #e4890a;
+  border-bottom: 5px solid #e4890a !important;
+}
+
+.carrelloTable {
+  border-bottom: 3px solid #e4890a !important;
 }
 
 footer {
   border-top: 5px solid #e4890a;
+}
+
+.trCarrello {
+  border: 3px solid #cc7a08;
 }
 
 .logoImg {
@@ -64,9 +85,6 @@ footer {
 
 .bi-list {
   width: 2.5rem !important;
-}
-.searchbarNav {
-  width: 80%;
 }
 
 .homeContainer,
@@ -120,11 +138,6 @@ footer {
   background-position: center;
 }
 
-/* .productImage,
-.productCard {
-  height: 50% !important;
-} */
-
 .categoryItem {
   background-color: #324117fe;
 }
@@ -146,7 +159,7 @@ footer {
 }
 
 .homeOpacity {
-  background-color: #494949df;
+  background-color: #413b32e5;
 }
 
 .confetti-wrapper {
@@ -161,19 +174,6 @@ footer {
   height: 8px;
   opacity: 0.9;
   border-radius: 1px;
-  animation: fall 4s linear infinite;
-  transform: rotateZ(45deg);
-}
-
-@keyframes fall {
-  0% {
-    transform: translateY(0) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(100vh) rotate(720deg);
-    opacity: 0;
-  }
 }
 
 .card-img-top {
@@ -190,4 +190,56 @@ footer {
   .card-img-top {
     height: 240px !important;
   }
+}
+
+.cart-wrapper {
+  width: 100%;
+  height: 100px;
+  overflow: hidden;
+  position: relative;
+}
+
+.cart {
+  position: absolute;
+  left: -100px;
+  font-size: 3rem;
+  animation: move-cart 2s linear infinite;
+}
+
+@keyframes move-cart {
+  0% {
+    left: -100px;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.speedMarket {
+  color: #cc7a08;
+}
+
+.carrelloTable {
+  background-color: #3a4b1c !important;
+}
+.carrelloTableContainer {
+  border-radius: 10px !important;
+  box-shadow: 5px 5px 15px#fff;
+  box-shadow: -5px -5px 15px#fff;
+}
+.profileLink {
+  background-color: #e89623;
+  color: #4c651c !important;
+}
+
+.profileLinkHover:hover {
+  background-color: #263608;
+  color: #cc7a08 !important;
+}
+
+.sidebar-sticky {
+  position: sticky;
+  top: 86px;
+  max-height: calc(100vh - 70px);
+  overflow-y: auto;
 }

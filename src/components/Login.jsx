@@ -1,16 +1,20 @@
 import { useDispatch } from "react-redux";
 import { login } from "../services/authService";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
     try {
       await dispatch(login({ email, password }));
       alert("Login effettuato!");
+      navigate("/");
     } catch (error) {
       alert("Login fallito: " + error.message);
     }
@@ -50,15 +54,29 @@ function Login() {
               <label htmlFor="password" className="form-label">
                 Password
               </label>
-              <input
-                type="password"
-                className="form-control"
-                id="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <div className="input-group">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  className="form-control"
+                  id="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={() => setShowPassword(!showPassword)}
+                  tabIndex={-1}
+                >
+                  {showPassword ? (
+                    <i className="bi bi-eye-slash" />
+                  ) : (
+                    <i className="bi bi-eye" />
+                  )}
+                </button>
+              </div>
             </div>
 
             <div className="d-grid mb-3">

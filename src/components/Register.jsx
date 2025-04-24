@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+// import { useDispatch } from "react-redux";
 import { register } from "../services/authService.js";
 import { useNavigate } from "react-router-dom";
 
 const Register = () => {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
 
   const [form, setForm] = useState({
     firstName: "",
@@ -23,7 +24,8 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await dispatch(register(form));
+      await register(form);
+      alert("Registrazione effettuata con successo");
       navigate("/login");
     } catch (err) {
       console.log(err);
@@ -76,14 +78,28 @@ const Register = () => {
 
           <div className="mb-3">
             <label className="form-label">Password</label>
-            <input
-              type="password"
-              className="form-control"
-              name="password"
-              value={form.password}
-              onChange={handleChange}
-              required
-            />
+            <div className="input-group">
+              <input
+                type={showPassword ? "text" : "password"}
+                className="form-control"
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                required
+              />
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                onClick={() => setShowPassword(!showPassword)}
+                tabIndex={-1}
+              >
+                {showPassword ? (
+                  <i className="bi bi-eye-slash" />
+                ) : (
+                  <i className="bi bi-eye" />
+                )}
+              </button>
+            </div>
           </div>
 
           <div className="mb-3">

@@ -6,6 +6,7 @@ import Prodotti from "./components/Prodotti";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import Footer from "./components/Footer";
+import Carrello from "./components/Carrello";
 
 function App() {
   return (
@@ -20,6 +21,8 @@ function App() {
 
             <Route path="/" element={<Home />} />
             <Route path="/prodotti" element={<Prodotti />} />
+
+            <Route path="/carrello" element={<Carrello />} />
           </Routes>
         </div>
 
