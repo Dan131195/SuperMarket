@@ -1,6 +1,6 @@
 import { useDispatch } from "react-redux";
 import { login } from "../services/authService";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function Login() {
@@ -19,6 +19,10 @@ function Login() {
       alert("Login fallito: " + error.message);
     }
   };
+
+  useEffect(() => {
+    document.title = "SpeedMarket - Login";
+  }, []);
 
   return (
     <div className="container d-flex justify-content-center align-items-center login h-100">

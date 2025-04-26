@@ -7,6 +7,8 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import Footer from "./components/Footer";
 import Carrello from "./components/Carrello";
+import Checkout from "./components/Checkout";
+import StoricoOrdini from "./components/StoricoOrdini";
 
 function App() {
   return (
@@ -23,6 +25,9 @@ function App() {
             <Route path="/prodotti" element={<Prodotti />} />
 
             <Route path="/carrello" element={<Carrello />} />
+
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/storico-ordini" element={<StoricoOrdini />} />
           </Routes>
         </div>
 

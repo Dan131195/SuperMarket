@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Spinner } from "react-bootstrap";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import fastCart from "../assets/img/fastCart2.png";
 
 const Carrello = () => {
@@ -9,7 +10,12 @@ const Carrello = () => {
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState(null);
 
+  const navigate = useNavigate();
+
+  const token = useSelector((state) => state.auth.token);
+  console.log(token);
   const userId = useSelector((state) => state.auth.user?.id);
+  console.log(userId);
 
   const baseUrl = "https://localhost:7006/api/carrello";
 
@@ -25,7 +31,6 @@ const Carrello = () => {
       if (!res.ok) throw new Error("Errore nel recupero carrello");
       const data = await res.json();
       setCarrello(data);
-      setLoading(false);
     } catch (error) {
       console.error("Errore:", error);
     } finally {
@@ -72,11 +77,39 @@ const Carrello = () => {
     }
   };
 
+  const checkout = () => {
+    navigate("/checkout");
+  };
+
+  // const confermaOrdine = async () => {
+  //   try {
+  //     const res = await fetch("https://localhost:7006/api/ordine/conferma", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //       body: JSON.stringify({ userId: userId }),
+  //     });
+
+  //     if (!res.ok) throw new Error("Errore durante la conferma dell'ordine");
+
+  //     mostraMessaggio("✅ Ordine confermato con successo!");
+
+  //     await caricaCarrello();
+  //     navigate("/checkout");
+  //   } catch (error) {
+  //     console.error(error);
+  //     mostraMessaggio("❌ Errore nella conferma ordine");
+  //   }
+  // };
+
   useEffect(() => {
+    document.title = "SpeedMarket - Carrello";
     if (userId) {
       caricaCarrello();
     }
-  }, []);
+  }, [userId]);
 
   const totale = carrello.reduce(
     (sum, item) => sum + item.quantita * item.prezzoUnitario,
@@ -97,11 +130,12 @@ const Carrello = () => {
       )}
 
       {loading ? (
-        <div className="text-center my-5">
+        <div className="text-center my-5 fw-bolder">
           <Spinner
             animation="border"
             variant="success"
-            style={{ width: "4rem", height: "4rem" }}
+            style={{ width: "7rem", height: "7rem" }}
+            className="display-1 "
           />
         </div>
       ) : carrello.length === 0 ? (
@@ -109,9 +143,9 @@ const Carrello = () => {
       ) : (
         <>
           <div className="table-responsive carrelloTableContainer pb-3">
-            <table className="table table-hover align-middle  rounded shadow ">
+            <table className="table table-hover align-middle rounded shadow">
               <thead className="table-light">
-                <tr className="">
+                <tr>
                   <th className="carrelloTable text-light">Prodotto</th>
                   <th className="text-center text-light carrelloTable">
                     Quantità
@@ -123,21 +157,19 @@ const Carrello = () => {
               </thead>
               <tbody>
                 {carrello.map((item) => (
-                  <tr key={item.prodottoCarrelloId} className="trCarrello">
+                  <tr key={item.prodottoCarrelloId}>
                     <td className="d-flex align-items-center gap-3">
-                      <div className="d-flex flex-column flex-md-row align-items-md-center ">
-                        <img
-                          src={`https://localhost:7006${item.immagineFile}`}
-                          alt={item.nomeProdotto}
-                          className="rounded"
-                          style={{
-                            width: "60px",
-                            height: "60px",
-                            objectFit: "cover",
-                          }}
-                        />
-                        <span>{item.nomeProdotto}</span>
-                      </div>
+                      <img
+                        src={`https://localhost:7006${item.immagineFile}`}
+                        alt={item.nomeProdotto}
+                        className="rounded"
+                        style={{
+                          width: "60px",
+                          height: "60px",
+                          objectFit: "cover",
+                        }}
+                      />
+                      {item.nomeProdotto}
                     </td>
                     <td className="text-center" style={{ maxWidth: 70 }}>
                       <input
@@ -173,13 +205,21 @@ const Carrello = () => {
             </table>
           </div>
 
-          <div className="d-flex justify-content-between align-items-center mt-4">
+          <div className="d-flex justify-content-between align-items-center mt-4 gap-2">
+            <h4 className="text-start text-white w-100">
+              Totale: <span>€ {totale.toFixed(2)}</span>
+            </h4>
             <button className="btn btn-danger" onClick={svuotaCarrello}>
               <i className="bi bi-cart-x"></i> Svuota carrello
             </button>
-            <h4 className="text-end text-white">
-              Tot: <span className="">€ {totale.toFixed(2)}</span>
-            </h4>
+
+            <button
+              className="btn btn-success"
+              onClick={checkout}
+              disabled={carrello.length === 0}
+            >
+              <i className="bi bi-bag-check"></i> Checkout
+            </button>
           </div>
         </>
       )}

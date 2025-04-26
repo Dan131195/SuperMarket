@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 // import { useDispatch } from "react-redux";
 import { register } from "../services/authService.js";
 import { useNavigate } from "react-router-dom";
@@ -32,6 +32,10 @@ const Register = () => {
       alert("Registrazione fallita");
     }
   };
+
+  useEffect(() => {
+    document.title = "SpeedMarket - Registrati";
+  }, []);
 
   return (
     <div className="container d-flex justify-content-center align-items-center register my-2">

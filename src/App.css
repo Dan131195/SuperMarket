@@ -146,7 +146,7 @@ footer {
   background-color: #567420fe !important;
 }
 #categoryList {
-  max-height: 100px;
+  max-height: 150px;
   overflow-y: auto;
 }
 #categoryList::-webkit-scrollbar {
@@ -154,7 +154,7 @@ footer {
 }
 
 #categoryList::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.493);
+  background-color: #e4890aaf;
   border-radius: 10px;
 }
 
@@ -220,7 +220,7 @@ footer {
 }
 
 .carrelloTable {
-  background-color: #3a4b1c !important;
+  background-color: #516b24 !important;
 }
 .carrelloTableContainer {
   border-radius: 10px !important;
@@ -242,4 +242,7 @@ footer {
   top: 86px;
   max-height: calc(100vh - 70px);
   overflow-y: auto;
+}
+.categoryItem:focus {
+  background-color: #de9228e1;
 }

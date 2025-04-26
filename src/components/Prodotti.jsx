@@ -1,11 +1,23 @@
+/* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
 import { Modal, Button, Spinner, Alert, ListGroup } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { setCart } from "../store/cartSlice";
-// import { parseJwt } from "../Utils/jwt";
+import fruitIcon from "../assets/icons/frutta.png";
+import allCategoriesIcon from "../assets/icons/allCategories.png";
+import defaultIcon from "../assets/icons/default.png";
+import breadIcon from "../assets/icons/pane.png";
+import meatIcon from "../assets/icons/carne.png";
+import drinksIcon from "../assets/icons/bevanda.png";
+import milkIcon from "../assets/icons/latticini.png";
+import biscuitIcon from "../assets/icons/biscuit.png";
+import pastaIcon from "../assets/icons/pasta.png";
+import eggIcon from "../assets/icons/uovo.png";
+import canIcon from "../assets/icons/dispensa.png";
 
 const Prodotti = () => {
   const dispatch = useDispatch();
+  const token = useSelector((state) => state.auth.token);
 
   const [prodotti, setProdotti] = useState([]);
   const [categorie, setCategorie] = useState([]);
@@ -17,17 +29,23 @@ const Prodotti = () => {
   const [selectedProdotto, setSelectedProdotto] = useState(null);
   const [messaggio, setMessaggio] = useState(null);
   const [quantita, setQuantita] = useState(1);
+  const [categoriaSelezionata, setCategoriaSelezionata] = useState(null);
+  const [showMessaggioModal, setShowMessaggioModal] = useState(false);
+  const [messaggioContenuto, setMessaggioContenuto] = useState("");
 
-  const token = useSelector((state) => state.auth.token);
-
-  const payload = JSON.parse(atob(token.split(".")[1]));
-  console.log("Token payload:", payload);
-
-  const userId =
-    payload[
-      "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
-    ];
-  console.log(userId);
+  let payload = null;
+  if (token) {
+    try {
+      payload = JSON.parse(atob(token.split(".")[1]));
+    } catch (error) {
+      console.error("Token non valido", error);
+    }
+  }
+  const userId = payload
+    ? payload[
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
+      ]
+    : null;
 
   useEffect(() => {
     document.title = "SpeedMarket - Prodotti";
@@ -64,6 +82,31 @@ const Prodotti = () => {
     fetchProdotti();
   }, []);
 
+  const getCategoriaImage = (nomeCategoria) => {
+    switch (nomeCategoria) {
+      case "Frutta":
+        return fruitIcon;
+      case "Pane":
+        return breadIcon;
+      case "Carne":
+        return meatIcon;
+      case "Bevande":
+        return drinksIcon;
+      case "Latticini":
+        return milkIcon;
+      case "Pasta":
+        return pastaIcon;
+      case "Biscotti":
+        return biscuitIcon;
+      case "Dispensa":
+        return canIcon;
+      case "Uova":
+        return eggIcon;
+      default:
+        return defaultIcon;
+    }
+  };
+
   const aggiungiAlCarrello = async (dto) => {
     const res = await fetch("https://localhost:7006/api/carrello", {
       method: "POST",
@@ -86,37 +129,50 @@ const Prodotti = () => {
   };
 
   const handleAddToCart = async (prodotto) => {
-    console.log(userId);
+    if (!token) {
+      setMessaggioContenuto(
+        "❌ Devi essere loggato per aggiungere al carrello!"
+      );
+      setShowMessaggioModal(true);
+      return;
+    }
+
     try {
       await aggiungiAlCarrello({
         userId: userId,
         prodottoId: prodotto.prodottoId,
         quantita: quantita,
       });
-      setMessaggio(`✅ ${prodotto.nomeProdotto} aggiunto al carrello`);
+      setMessaggioContenuto(`✅ ${prodotto.nomeProdotto} aggiunto al carrello`);
       await aggiornaCarrelloRedux();
     } catch (err) {
-      setMessaggio("❌ " + err.message);
+      setMessaggioContenuto("❌ " + err.message);
     } finally {
-      setTimeout(() => setMessaggio(null), 3000);
+      setShowMessaggioModal(true);
       setShowModal(false);
       setQuantita(1);
     }
   };
 
   const handleShow = (prodotto) => {
-    console.log(userId);
     setSelectedProdotto(prodotto);
     setShowModal(true);
   };
 
   const handleClose = () => setShowModal(false);
 
+  const prodottiFiltrati = categoriaSelezionata
+    ? prodotti.filter((p) => p.categoriaNome === categoriaSelezionata)
+    : prodotti;
+
   if (loadingProdotti || loadingCategorie) {
     return (
-      <div className="d-flex justify-content-center align-items-center vh-100">
-        <Spinner animation="border" variant="primary" />
-      </div>
+      <Spinner
+        animation="border"
+        variant="success"
+        style={{ width: "7rem", height: "7rem" }}
+        className="display-1 text-center"
+      />
     );
   }
 
@@ -136,11 +192,30 @@ const Prodotti = () => {
         <div className="d-none d-md-block col-md-3 col-xl-2 h-100 p-0 pe-3 ps-1 sidebar-sticky">
           <h5 className="text-light border-bottom border-4 pb-2">Categorie</h5>
           <div>
+            <p
+              className={`border-bottom border-2 text-white m-0 py-1 cursor-pointer ${
+                categoriaSelezionata === null ? " fw-bold" : ""
+              }`}
+              onClick={() => setCategoriaSelezionata(null)}
+            >
+              <img src={allCategoriesIcon} alt="" width={28} /> Tutte
+            </p>
             {categorie.map((cat) => (
               <p
                 key={cat.categoriaId}
-                className="border-bottom border-2 text-white m-0 py-1"
+                className={`border-bottom border-2 text-white m-0 py-2 cursor-pointer d-flex align-items-center gap-2 ${
+                  categoriaSelezionata === cat.nomeCategoria
+                    ? "fw-bold text-warning"
+                    : ""
+                }`}
+                onClick={() => setCategoriaSelezionata(cat.nomeCategoria)}
               >
+                <img
+                  src={getCategoriaImage(cat.nomeCategoria)}
+                  alt={cat.nomeCategoria}
+                  width={36}
+                  className="border border-2 border-light rounded-5 p-1"
+                />
                 {cat.nomeCategoria}
               </p>
             ))}
@@ -172,12 +247,40 @@ const Prodotti = () => {
 
                 {showCategorie && (
                   <ListGroup id="categoryList" className="scrollable-list">
+                    {/* Tutte */}
+                    <ListGroup.Item
+                      action
+                      className={`text-light categoryItem ${
+                        categoriaSelezionata === null
+                          ? "fw-bold text-warning"
+                          : ""
+                      } d-flex align-items-center gap-2`}
+                      onClick={() => setCategoriaSelezionata(null)}
+                    >
+                      <img src={allCategoriesIcon} alt="Tutte" width={24} />
+                      Tutte
+                    </ListGroup.Item>
+
+                    {/* Mappa categorie */}
                     {categorie.map((cat) => (
                       <ListGroup.Item
                         key={cat.categoriaId}
                         action
-                        className="text-light categoryItem"
+                        className={`text-light categoryItem ${
+                          categoriaSelezionata === cat.nomeCategoria
+                            ? "fw-bold text-danger"
+                            : ""
+                        } d-flex align-items-center gap-2`}
+                        onClick={() =>
+                          setCategoriaSelezionata(cat.nomeCategoria)
+                        }
                       >
+                        <img
+                          src={getCategoriaImage(cat.nomeCategoria)}
+                          alt={cat.nomeCategoria}
+                          width={36}
+                          className="border border-2 border-light p-1 rounded-5"
+                        />
                         {cat.nomeCategoria}
                       </ListGroup.Item>
                     ))}
@@ -186,9 +289,9 @@ const Prodotti = () => {
               </div>
 
               <div className="row m-0 p-1 g-1">
-                {prodotti.map((prodotto) => (
+                {prodottiFiltrati.map((prodotto) => (
                   <div
-                    className="col-6 col-md-4  col-xl-2 d-flex mb-1 p-1"
+                    className="col-6 col-md-4 col-xl-2 d-flex mb-1 p-1"
                     key={prodotto.prodottoId}
                   >
                     <div className="card w-100 d-flex flex-column productCard">
@@ -202,14 +305,12 @@ const Prodotti = () => {
                         <p className="card-text text-muted">
                           {prodotto.categoriaNome}
                         </p>
-
-                        <div className="">
+                        <div>
                           <div className="fw-bold">
                             € {prodotto.prezzoProdotto.toFixed(2)}
                           </div>
-
                           <button
-                            className="btn btn-success w-100"
+                            className="btn btn-success w-100 mt-2"
                             onClick={() => handleShow(prodotto)}
                           >
                             <i className="bi bi-cart4 text-light"></i>
@@ -219,6 +320,12 @@ const Prodotti = () => {
                     </div>
                   </div>
                 ))}
+
+                {prodottiFiltrati.length === 0 && (
+                  <div className="text-center text-light mt-4">
+                    Nessun prodotto trovato.
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -239,18 +346,17 @@ const Prodotti = () => {
                 <strong>Categoria:</strong> {selectedProdotto.categoriaNome}
               </p>
               <p>
-                <strong>Prezzo:</strong> €
+                <strong>Prezzo:</strong> €{" "}
                 {selectedProdotto.prezzoProdotto.toFixed(2)}
               </p>
               <p>
                 <strong>Disponibilità:</strong> {selectedProdotto.stock} pezzi
               </p>
               <p>
-                <strong>Descrizione: </strong>
+                <strong>Descrizione:</strong>{" "}
                 {selectedProdotto.descrizioneProdotto}
               </p>
             </Modal.Body>
-
             <Modal.Footer className="d-flex flex-column align-items-stretch gap-2">
               <div className="d-flex align-items-center gap-2 w-100">
                 <label className="form-label m-0">Quantità:</label>
@@ -267,21 +373,51 @@ const Prodotti = () => {
                   Disponibili: {selectedProdotto?.stock}
                 </span>
               </div>
-              <div className="d-flex justify-content-between w-100">
-                <Button variant="secondary" onClick={handleClose}>
-                  Chiudi
-                </Button>
-                <Button
-                  variant="primary"
-                  onClick={() => handleAddToCart(selectedProdotto)}
-                  disabled={!userId || selectedProdotto.stock === 0}
-                >
-                  <i className="bi bi-cart-plus"></i> Aggiungi al carrello
-                </Button>
+              <div>
+                <div className="d-flex justify-content-between w-100">
+                  <Button variant="secondary" onClick={handleClose}>
+                    Chiudi
+                  </Button>
+                  <Button
+                    variant="success"
+                    onClick={() => handleAddToCart(selectedProdotto)}
+                    disabled={!token || selectedProdotto.stock === 0}
+                  >
+                    <i className="bi bi-cart-plus"></i> Aggiungi al carrello
+                  </Button>
+                </div>
+
+                {!token && (
+                  <div className="m-0">
+                    <p className="text-danger text-end mt-1 mb-0 pe-1">
+                      Effettua il Login !
+                    </p>
+                  </div>
+                )}
               </div>
             </Modal.Footer>
           </Modal>
         )}
+        <Modal
+          show={showMessaggioModal}
+          onHide={() => setShowMessaggioModal(false)}
+          centered
+        >
+          <Modal.Header closeButton className="bg-dark border-0">
+            <Modal.Title className="text-light">Messaggio</Modal.Title>
+          </Modal.Header>
+          <Modal.Body className="text-center bg-dark text-light">
+            {messaggioContenuto}
+          </Modal.Body>
+          <Modal.Footer className="bg-dark border-0">
+            <Button
+              variant="danger"
+              onClick={() => setShowMessaggioModal(false)}
+            >
+              Chiudi
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </div>
     </div>
   );
