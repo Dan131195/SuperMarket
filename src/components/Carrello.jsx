@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Spinner } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { setCart } from "../store/cartSlice";
 import fastCart from "../assets/img/fastCart2.png";
 import emptyCart from "../assets/img/empty-cart.png";
@@ -137,11 +137,19 @@ const Carrello = () => {
           />
         </div>
       ) : carrello.length === 0 ? (
-        <div className="text-center d-flex justify-content-center align-items-center">
-          <img src={emptyCart} alt="Il Carre è vuoto" className="w-50" />
-          <p className=" fw-semibold text-white w-50 text-start ps-2 emptyCart">
-            Ops, il carrello è vuoto..
-          </p>
+        <div>
+          <div className="text-center d-flex flex-column flex-md-row  justify-content-center align-items-center">
+            <img src={emptyCart} alt="Il Carre è vuoto" className="w-50" />
+            <p className=" fw-semibold text-white w-50 text-start ps-2 emptyCart">
+              Ops, il carrello è vuoto..
+            </p>
+          </div>
+          <Link
+            to="/prodotti"
+            className="btn btn-success p-2 d-block w-50 m-auto"
+          >
+            Vai a Prodotti
+          </Link>
         </div>
       ) : (
         <>

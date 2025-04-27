@@ -26,6 +26,21 @@ const Checkout = () => {
     setOraMinima(formattedTime);
   }, []);
 
+  const getBadgeColor = (stato) => {
+    switch (stato.toLowerCase()) {
+      case "in preparazione":
+        return "warning";
+      case "pronto":
+        return "success";
+      case "consegnato":
+        return "primary";
+      case "annullato":
+        return "danger";
+      default:
+        return "secondary";
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 

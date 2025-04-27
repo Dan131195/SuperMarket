@@ -192,8 +192,13 @@ footer {
 }
 
 .emptyCart {
+  width: 75% !important;
   margin: 0 auto !important;
   font-size: 1.9rem !important;
+}
+
+.errorImg {
+  width: 70% !important;
 }
 
 @media screen and (min-width: 768px) {
@@ -214,7 +219,7 @@ footer {
     font-size: 2.9rem !important;
   }
   .errorImg {
-    width: 60% !important;
+    width: 40% !important;
   }
 }
 

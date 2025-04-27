@@ -24,7 +24,7 @@ export const login = (credentials) => async (dispatch) => {
         user: {
           id: userId,
           email,
-          roles,
+          role: roles[0], // 👈 prendi il PRIMO ruolo (es. "User" o "Admin")
         },
       })
     );

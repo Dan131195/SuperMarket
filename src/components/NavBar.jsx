@@ -97,7 +97,7 @@ const NavBar = () => {
                     <li className="profileLink">
                       <Link
                         className="dropdown-item profileLink profileLinkHover"
-                        to="/ordini"
+                        to="/storico-ordini"
                       >
                         <i className="bi bi-bag-check-fill"></i> I miei ordini
                       </Link>
