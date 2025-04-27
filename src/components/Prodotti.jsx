@@ -4,7 +4,7 @@ import { Modal, Button, Spinner, Alert, ListGroup } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { setCart } from "../store/cartSlice";
 import fruitIcon from "../assets/icons/frutta.png";
-import allCategoriesIcon from "../assets/icons/allCategories.png";
+import allCategoriesIcon from "../assets/icons/all-categories.png";
 import defaultIcon from "../assets/icons/default.png";
 import breadIcon from "../assets/icons/pane.png";
 import meatIcon from "../assets/icons/carne.png";
@@ -18,6 +18,7 @@ import canIcon from "../assets/icons/dispensa.png";
 const Prodotti = () => {
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
+  console.log(token);
 
   const [prodotti, setProdotti] = useState([]);
   const [categorie, setCategorie] = useState([]);
@@ -110,7 +111,10 @@ const Prodotti = () => {
   const aggiungiAlCarrello = async (dto) => {
     const res = await fetch("https://localhost:7006/api/carrello", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify(dto),
     });
 
@@ -121,7 +125,11 @@ const Prodotti = () => {
   };
 
   const aggiornaCarrelloRedux = async () => {
-    const res = await fetch(`https://localhost:7006/api/carrello/${userId}`);
+    const res = await fetch(`https://localhost:7006/api/carrello/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     if (res.ok) {
       const data = await res.json();
       dispatch(setCart(data));
@@ -167,12 +175,14 @@ const Prodotti = () => {
 
   if (loadingProdotti || loadingCategorie) {
     return (
-      <Spinner
-        animation="border"
-        variant="success"
-        style={{ width: "7rem", height: "7rem" }}
-        className="display-1 text-center"
-      />
+      <div className="text-center mt-5">
+        <Spinner
+          animation="border"
+          variant="success"
+          style={{ width: "7rem", height: "7rem" }}
+          className="display-1"
+        />
+      </div>
     );
   }
 
@@ -189,23 +199,34 @@ const Prodotti = () => {
   return (
     <div className="h-100 p-0">
       <div className="py-3 row h-100 m-0">
-        <div className="d-none d-md-block col-md-3 col-xl-2 h-100 p-0 pe-3 ps-1 sidebar-sticky">
+        {/*  */}
+        {/* Categorie SideBar */}
+        <div
+          className="d-none d-md-block col-md-3 col-xl-2 h-100 p-0 pe-3 ps-1 sidebar-sticky"
+          id="categoryList2"
+        >
           <h5 className="text-light border-bottom border-4 pb-2">Categorie</h5>
           <div>
             <p
-              className={`border-bottom border-2 text-white m-0 py-1 cursor-pointer ${
-                categoriaSelezionata === null ? " fw-bold" : ""
+              className={` text-white m-0 py-1 gap-2 curso-pointer ${
+                categoriaSelezionata === null ? " fw-bold fst-italic" : ""
               }`}
               onClick={() => setCategoriaSelezionata(null)}
             >
-              <img src={allCategoriesIcon} alt="" width={28} /> Tutte
+              <img
+                src={allCategoriesIcon}
+                alt=""
+                width={45}
+                className="border border-2 border-light rounded-5 p-1 categoryIcon"
+              />{" "}
+              Tutte
             </p>
             {categorie.map((cat) => (
               <p
                 key={cat.categoriaId}
-                className={`border-bottom border-2 text-white m-0 py-2 cursor-pointer d-flex align-items-center gap-2 ${
+                className={` text-white m-0 py-2 d-flex align-items-center gap-2 cursor-pointer ${
                   categoriaSelezionata === cat.nomeCategoria
-                    ? "fw-bold text-warning"
+                    ? "fw-bold text-warning fst-italic"
                     : ""
                 }`}
                 onClick={() => setCategoriaSelezionata(cat.nomeCategoria)}
@@ -213,8 +234,8 @@ const Prodotti = () => {
                 <img
                   src={getCategoriaImage(cat.nomeCategoria)}
                   alt={cat.nomeCategoria}
-                  width={36}
-                  className="border border-2 border-light rounded-5 p-1"
+                  width={45}
+                  className="border border-2 border-light rounded-5 categoryIcon p-1"
                 />
                 {cat.nomeCategoria}
               </p>
@@ -225,7 +246,9 @@ const Prodotti = () => {
         <div className="col-md-9 col-xl-10">
           <div className="row">
             <div className="col-12 p-0">
-              <h2 className="mb-2 ps-1 text-light">I NOSTRI PRODOTTI</h2>
+              <h2 className="mb-2 ps-3 ps-lg-2 text-light">
+                I NOSTRI PRODOTTI
+              </h2>
 
               {messaggio && (
                 <div className="alert alert-success text-center">
@@ -233,7 +256,7 @@ const Prodotti = () => {
                 </div>
               )}
 
-              <div className="col-12 d-md-none mb-2 border border-3 p-1 m-auto w-75 px-2 rounded-3">
+              <div className="col-12 d-md-none mb-2 border border-3 p-1 m-auto px-2 rounded-3 CategoriesContainerSM">
                 <div className="d-flex justify-content-between align-items-center py-2 px-2">
                   <h5 className="text-light m-0 ps-2">Categorie</h5>
                   <i
@@ -288,20 +311,24 @@ const Prodotti = () => {
                 )}
               </div>
 
-              <div className="row m-0 p-1 g-1">
+              {/* Prodotti */}
+              <div className="row m-0 p-1 p-lg-0 ">
                 {prodottiFiltrati.map((prodotto) => (
                   <div
-                    className="col-6 col-md-4 col-xl-2 d-flex mb-1 p-1"
+                    className="col-6 col-sm-4 col-xl-3 col-xxl-2 d-flex mb-1 p-2 p-lg-1"
                     key={prodotto.prodottoId}
                   >
                     <div className="card w-100 d-flex flex-column productCard">
-                      <img
-                        src={`https://localhost:7006${prodotto.immagineFile}`}
-                        className="card-img-top w-100 rounded-2 productImage h-50"
-                        alt={prodotto.nomeProdotto}
-                      />
+                      <div className="w-100 bg-white p-1">
+                        <img
+                          src={`https://localhost:7006${prodotto.immagineFile}`}
+                          className="card-img-top m-auto rounded-2 productImage"
+                          alt={prodotto.nomeProdotto}
+                        />
+                      </div>
+
                       <div className="card-body d-flex flex-column justify-content-between border-top border-3">
-                        <h5 className="card-title">{prodotto.nomeProdotto}</h5>
+                        <h6 className="card-title">{prodotto.nomeProdotto}</h6>
                         <p className="card-text text-muted">
                           {prodotto.categoriaNome}
                         </p>
@@ -401,6 +428,7 @@ const Prodotti = () => {
         <Modal
           show={showMessaggioModal}
           onHide={() => setShowMessaggioModal(false)}
+          className=" bg-white bg-opacity-25 "
           centered
         >
           <Modal.Header closeButton className="bg-dark border-0">

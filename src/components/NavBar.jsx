@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import logoImg from "../assets/img/logo.png";
+import logoImg from "../assets/img/logo3.png";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../store/authSlice";
 
@@ -7,8 +7,8 @@ const NavBar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isAuthenticated, user } = useSelector((state) => state.auth);
-  const cartItems = useSelector((state) => state.cart.items); // prendi carrello da redux
-  const cartCount = cartItems.reduce((acc, item) => acc + item.quantita, 0); // somma quantità prodotti
+  const cartItems = useSelector((state) => state.cart.items);
+  const cartCount = cartItems.reduce((acc, item) => acc + item.quantita, 0);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -65,11 +65,9 @@ const NavBar = () => {
                     to="/carrello"
                   >
                     <i className="bi bi-cart4 me-1"></i>Carrello
-                    {cartCount > 0 && (
-                      <span className="position-absolute top-25 start-75 translate-middle badge rounded-pill bg-danger">
-                        {cartCount}
-                      </span>
-                    )}
+                    <span className="position-absolute top-25 start-75 translate-middle badge rounded-pill bg-danger">
+                      {cartCount}
+                    </span>
                   </Link>
                 </li>
               )}

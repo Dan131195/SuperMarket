@@ -9,6 +9,7 @@ import Footer from "./components/Footer";
 import Carrello from "./components/Carrello";
 import Checkout from "./components/Checkout";
 import StoricoOrdini from "./components/StoricoOrdini";
+import Error from "./components/Error";
 
 function App() {
   return (
@@ -28,6 +29,8 @@ function App() {
 
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/storico-ordini" element={<StoricoOrdini />} />
+
+            <Route path="*" element={<Error />} />
           </Routes>
         </div>
 
