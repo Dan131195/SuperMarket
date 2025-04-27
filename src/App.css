@@ -138,6 +138,31 @@ footer {
 .productImage {
   background-position: center;
   padding: 10px;
+  max-height: 230px;
+}
+
+@media screen and (min-width: 576px) {
+  .productImage {
+    max-height: 180px;
+  }
+}
+
+@media screen and (min-width: 768px) {
+  .productImage {
+    max-height: 150px;
+  }
+}
+
+@media screen and (min-width: 992px) {
+  .productImage {
+    max-height: 210px;
+  }
+}
+
+@media screen and (min-width: 1400px) {
+  .productImage {
+    max-height: 200px;
+  }
 }
 
 .categoryItem {
@@ -158,13 +183,15 @@ footer {
 }
 
 #categoryList::-webkit-scrollbar,
-#categoryList2::-webkit-scrollbar {
-  width: 8px;
+#categoryList2::-webkit-scrollbar,
+#categoryCarousel::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
   padding: 2px;
 }
 
-#categoryList::-webkit-scrollbar-thumb,
-#categoryList2::-webkit-scrollbar {
+#categoryCarousel::-webkit-scrollbar-thumb,
+#categoryList2::-webkit-scrollbar-thumb {
   background-color: #e4890aaf;
   border-radius: 10px;
 }
@@ -264,11 +291,13 @@ footer {
 .carrelloTable {
   background-color: #516b24 !important;
 }
+
 .carrelloTableContainer {
   border-radius: 10px !important;
   box-shadow: 5px 5px 15px#fff;
   box-shadow: -5px -5px 15px#fff;
 }
+
 .profileLink {
   background-color: #e89623;
   color: #4c651c !important;
@@ -293,15 +322,67 @@ footer {
 .CategoriesContainerSM {
   width: 95%;
 }
+
 .cursor-pointer {
   cursor: pointer;
+  padding: 5px;
+  border-radius: 10px;
 }
 .cursor-pointer:hover {
-  color: #e4890a !important;
+  background-color: #e4890aa0 !important;
 }
+
 .flex-1 {
   width: 100% !important;
 }
+
 .msgSuccess {
   font-size: 0.8rem;
+}
+
+.custom-modal {
+  max-width: 380px;
+  margin: auto;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.nuovoProdottoBtn {
+  border: 2px solid #e4890a;
+}
+
+.nuovoProdottoBtn:hover {
+  border: 2px solid #e4890a;
+}
+
+a:hover,
+button:hover {
+  transform: scale(1.02);
+}
+
+.categoryItem:hover {
+  background-color: #e4890aa7 !important;
+}
+
+.scroll-to-top-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #e4890af3;
+  color: white;
+  border: 2px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.scroll-to-top-btn:hover {
+  background-color: #b7771fc4;
+  transform: scale(1);
 }

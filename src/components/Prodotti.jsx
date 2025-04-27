@@ -12,8 +12,9 @@ import drinksIcon from "../assets/icons/bevanda.png";
 import milkIcon from "../assets/icons/latticini.png";
 import biscuitIcon from "../assets/icons/biscuit.png";
 import pastaIcon from "../assets/icons/pasta.png";
-import eggIcon from "../assets/icons/uovo.png";
+import eggIcon from "../assets/icons/egg.png";
 import canIcon from "../assets/icons/dispensa.png";
+import notFound from "../assets/img/notFound.png";
 
 const Prodotti = () => {
   const dispatch = useDispatch();
@@ -25,7 +26,6 @@ const Prodotti = () => {
   const [loadingProdotti, setLoadingProdotti] = useState(true);
   const [loadingCategorie, setLoadingCategorie] = useState(true);
   const [errore, setErrore] = useState(null);
-  const [showCategorie, setShowCategorie] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [selectedProdotto, setSelectedProdotto] = useState(null);
   const [messaggio, setMessaggio] = useState(null);
@@ -33,11 +33,24 @@ const Prodotti = () => {
   const [categoriaSelezionata, setCategoriaSelezionata] = useState(null);
   const [showMessaggioModal, setShowMessaggioModal] = useState(false);
   const [messaggioContenuto, setMessaggioContenuto] = useState("");
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingProdotto, setEditingProdotto] = useState(null);
+
+  const [nomeProdotto, setNomeProdotto] = useState("");
+  const [prezzoProdotto, setPrezzoProdotto] = useState("");
+  const [stock, setStock] = useState("");
+  const [nomeCategoria, setNomeCategoria] = useState("");
+  const [descrizioneProdotto, setDescrizioneProdotto] = useState("");
+  const [immagineFile, setImmagineFile] = useState(null);
 
   let payload = null;
+  let userRole = null;
+
   if (token) {
     try {
       payload = JSON.parse(atob(token.split(".")[1]));
+      userRole =
+        payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
     } catch (error) {
       console.error("Token non valido", error);
     }
@@ -82,6 +95,114 @@ const Prodotti = () => {
     fetchCategorie();
     fetchProdotti();
   }, []);
+
+  const resetForm = () => {
+    setNomeProdotto("");
+    setPrezzoProdotto("");
+    setStock("");
+    setNomeCategoria("");
+    setDescrizioneProdotto("");
+    setImmagineFile(null);
+    setEditingProdotto(null);
+  };
+
+  const handleCreaProdotto = async (e) => {
+    resetForm();
+    e.preventDefault();
+    try {
+      const formData = new FormData();
+      formData.append("NomeProdotto", nomeProdotto);
+      formData.append("PrezzoProdotto", prezzoProdotto);
+      formData.append("Stock", stock);
+      formData.append("NomeCategoria", nomeCategoria);
+      formData.append("DescrizioneProdotto", descrizioneProdotto);
+      formData.append("ImmagineFile", immagineFile);
+
+      const res = await fetch("https://localhost:7006/api/prodotto", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error("Errore durante la creazione del prodotto");
+
+      alert("✅ Prodotto creato con successo!");
+      resetForm();
+      setShowCreateModal(false);
+      window.location.reload(); // Per aggiornare subito la lista
+    } catch (err) {
+      console.error(err);
+      alert("❌ Errore nella creazione");
+    }
+  };
+
+  const handleModificaProdotto = async (e) => {
+    e.preventDefault();
+    try {
+      const body = {
+        nomeProdotto,
+        prezzoProdotto: parseFloat(prezzoProdotto),
+        stock: parseInt(stock),
+        nomeCategoria,
+        descrizioneProdotto,
+      };
+
+      const res = await fetch(
+        `https://localhost:7006/api/prodotto/${editingProdotto.prodottoId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(body),
+        }
+      );
+
+      if (!res.ok) throw new Error("Errore durante la modifica del prodotto");
+
+      alert("✅ Prodotto modificato con successo!");
+      resetForm();
+      setShowCreateModal(false);
+      window.location.reload();
+    } catch (err) {
+      console.error(err);
+      alert("❌ Errore nella modifica");
+    }
+  };
+
+  const handleEditProdotto = (prodotto) => {
+    setEditingProdotto(prodotto);
+    setNomeProdotto(prodotto.nomeProdotto);
+    setPrezzoProdotto(prodotto.prezzoProdotto);
+    setStock(prodotto.stock);
+    setNomeCategoria(prodotto.categoriaNome);
+    setDescrizioneProdotto(prodotto.descrizioneProdotto);
+    setShowCreateModal(true);
+  };
+
+  const handleDeleteProdotto = async (prodottoId) => {
+    if (window.confirm("Sei sicuro di voler eliminare questo prodotto?")) {
+      try {
+        const res = await fetch(
+          `https://localhost:7006/api/prodotto/${prodottoId}`,
+          {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        if (!res.ok) throw new Error("Errore durante eliminazione prodotto");
+
+        alert("✅ Prodotto eliminato con successo!");
+        window.location.reload();
+      } catch (error) {
+        console.error(error);
+        alert("❌ Errore eliminazione prodotto");
+      }
+    }
+  };
 
   const getCategoriaImage = (nomeCategoria) => {
     switch (nomeCategoria) {
@@ -197,18 +318,18 @@ const Prodotti = () => {
   }
 
   return (
-    <div className="h-100 p-0">
-      <div className="py-3 row h-100 m-0">
+    <div className="p-0">
+      <div className="py-3 row m-0">
         {/*  */}
         {/* Categorie SideBar */}
         <div
-          className="d-none d-md-block col-md-3 col-xl-2 h-100 p-0 pe-3 ps-1 sidebar-sticky"
+          className="d-none d-md-block col-md-3 col-xl-2  h-100 p-0 pe-3 ps-1 sidebar-sticky"
           id="categoryList2"
         >
           <h5 className="text-light border-bottom border-4 pb-2">Categorie</h5>
           <div>
             <p
-              className={` text-white m-0 py-1 gap-2 curso-pointer ${
+              className={` text-white m-0 py-1 gap-2 cursor-pointer  ${
                 categoriaSelezionata === null ? " fw-bold fst-italic" : ""
               }`}
               onClick={() => setCategoriaSelezionata(null)}
@@ -243,12 +364,24 @@ const Prodotti = () => {
           </div>
         </div>
 
-        <div className="col-md-9 col-xl-10">
+        <div className="col-md-9 col-xl-10 ">
           <div className="row">
             <div className="col-12 p-0">
-              <h2 className="mb-2 ps-3 ps-lg-2 text-light">
-                I NOSTRI PRODOTTI
-              </h2>
+              <div className="mb-2 ps-3 ps-lg-2 text-light ">
+                <h2>I Nostri Prodotti</h2>
+                {userRole === "SuperAdmin" && (
+                  <Button
+                    className="nuovoProdottoBtn"
+                    variant="success"
+                    onClick={() => {
+                      setShowCreateModal(true);
+                      resetForm();
+                    }}
+                  >
+                    <i className="bi bi-plus-circle"></i> Nuovo Prodotto
+                  </Button>
+                )}
+              </div>
 
               {messaggio && (
                 <div className="alert alert-success text-center">
@@ -256,59 +389,61 @@ const Prodotti = () => {
                 </div>
               )}
 
-              <div className="col-12 d-md-none mb-2 border border-3 p-1 m-auto px-2 rounded-3 CategoriesContainerSM">
-                <div className="d-flex justify-content-between align-items-center py-2 px-2">
-                  <h5 className="text-light m-0 ps-2">Categorie</h5>
-                  <i
-                    className={`bi ${
-                      showCategorie ? "bi-caret-up-fill" : "bi-caret-down-fill"
-                    } border border-2 px-1 cursor-pointer text-light rounded-2`}
-                    onClick={() => setShowCategorie(!showCategorie)}
-                    role="button"
-                  />
-                </div>
+              <div className="col-12 d-md-none mb-2 p-1 m-auto px-2 rounded-3 CategoriesContainerSM">
+                <div
+                  id="categoryCarousel"
+                  className="d-flex overflow-auto py-2"
+                  style={{ scrollSnapType: "x mandatory", gap: "10px" }}
+                >
+                  {/* Tutte */}
+                  <div
+                    className={`bg-transparent text-light categoryItem rounded-3 ${
+                      categoriaSelezionata === null
+                        ? "fw-bold text-warning"
+                        : ""
+                    } d-flex flex-column align-items-center text-center px-2 pt-1`}
+                    style={{
+                      minWidth: "80px",
+                      scrollSnapAlign: "start",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => setCategoriaSelezionata(null)}
+                  >
+                    <img
+                      src={allCategoriesIcon}
+                      alt="Tutte"
+                      width={36}
+                      className="border border-2 border-light p-1 rounded-5 mb-1 categoryIcon"
+                    />
+                    <small>Tutte</small>
+                  </div>
 
-                {showCategorie && (
-                  <ListGroup id="categoryList" className="scrollable-list">
-                    {/* Tutte */}
-                    <ListGroup.Item
-                      action
-                      className={`text-light categoryItem ${
-                        categoriaSelezionata === null
-                          ? "fw-bold text-warning"
+                  {/* Mappa categorie */}
+                  {categorie.map((cat) => (
+                    <div
+                      key={cat.categoriaId}
+                      className={`bg-transparent text-light categoryItem rounded-3 ${
+                        categoriaSelezionata === cat.nomeCategoria
+                          ? "fw-bold text-danger"
                           : ""
-                      } d-flex align-items-center gap-2`}
-                      onClick={() => setCategoriaSelezionata(null)}
+                      } d-flex flex-column align-items-center text-center px-2 pt-1`}
+                      style={{
+                        minWidth: "80px",
+                        scrollSnapAlign: "start",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => setCategoriaSelezionata(cat.nomeCategoria)}
                     >
-                      <img src={allCategoriesIcon} alt="Tutte" width={24} />
-                      Tutte
-                    </ListGroup.Item>
-
-                    {/* Mappa categorie */}
-                    {categorie.map((cat) => (
-                      <ListGroup.Item
-                        key={cat.categoriaId}
-                        action
-                        className={`text-light categoryItem ${
-                          categoriaSelezionata === cat.nomeCategoria
-                            ? "fw-bold text-danger"
-                            : ""
-                        } d-flex align-items-center gap-2`}
-                        onClick={() =>
-                          setCategoriaSelezionata(cat.nomeCategoria)
-                        }
-                      >
-                        <img
-                          src={getCategoriaImage(cat.nomeCategoria)}
-                          alt={cat.nomeCategoria}
-                          width={36}
-                          className="border border-2 border-light p-1 rounded-5"
-                        />
-                        {cat.nomeCategoria}
-                      </ListGroup.Item>
-                    ))}
-                  </ListGroup>
-                )}
+                      <img
+                        src={getCategoriaImage(cat.nomeCategoria)}
+                        alt={cat.nomeCategoria}
+                        width={36}
+                        className="border border-2 border-light p-1 rounded-5 mb-1 categoryIcon"
+                      />
+                      <small>{cat.nomeCategoria}</small>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               {/* Prodotti */}
@@ -332,16 +467,39 @@ const Prodotti = () => {
                         <p className="card-text text-muted">
                           {prodotto.categoriaNome}
                         </p>
+
+                        <div className="fw-bold">
+                          € {prodotto.prezzoProdotto.toFixed(2)}
+                        </div>
                         <div>
-                          <div className="fw-bold">
-                            € {prodotto.prezzoProdotto.toFixed(2)}
-                          </div>
-                          <button
+                          <Button
                             className="btn btn-success w-100 mt-2"
                             onClick={() => handleShow(prodotto)}
                           >
                             <i className="bi bi-cart4 text-light"></i>
-                          </button>
+                          </Button>
+                          {userRole === "SuperAdmin" && (
+                            <div className="mt-2 d-flex gap-1">
+                              <Button
+                                variant="warning"
+                                size="sm"
+                                className="w-50 text-light"
+                                onClick={() => handleEditProdotto(prodotto)}
+                              >
+                                <i className="bi bi-pencil-square"></i>
+                              </Button>
+                              <Button
+                                variant="danger"
+                                size="sm"
+                                className="w-50"
+                                onClick={() =>
+                                  handleDeleteProdotto(prodotto.prodottoId)
+                                }
+                              >
+                                <i className="bi bi-trash"></i>
+                              </Button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -349,8 +507,9 @@ const Prodotti = () => {
                 ))}
 
                 {prodottiFiltrati.length === 0 && (
-                  <div className="text-center text-light mt-4">
-                    Nessun prodotto trovato.
+                  <div className="text-center text-light d-flex justify-content-center align-items-center mt-4">
+                    <img src={notFound} alt="notFound" />
+                    <p className="m-0 ms-3"> Nessun prodotto trovato.</p>
                   </div>
                 )}
               </div>
@@ -359,16 +518,30 @@ const Prodotti = () => {
         </div>
 
         {selectedProdotto && (
-          <Modal show={showModal} onHide={handleClose} centered>
+          <Modal
+            show={showModal}
+            onHide={handleClose}
+            centered
+            contentClassName="custom-modal"
+          >
             <Modal.Header closeButton>
-              <Modal.Title>{selectedProdotto.nomeProdotto}</Modal.Title>
+              <Modal.Title className="text-center w-100">
+                {selectedProdotto.nomeProdotto}
+              </Modal.Title>
             </Modal.Header>
-            <Modal.Body>
-              <img
-                src={`https://localhost:7006${selectedProdotto.immagineFile}`}
-                alt={selectedProdotto.nomeProdotto}
-                className="img-fluid mb-3 rounded m-auto w-100"
-              />
+            <Modal.Body className="text-start">
+              <div className="text-center">
+                <img
+                  src={`https://localhost:7006${selectedProdotto.immagineFile}`}
+                  alt={selectedProdotto.nomeProdotto}
+                  className="img-fluid mb-3 rounded"
+                  style={{
+                    maxHeight: "250px",
+                    objectFit: "cover",
+                  }}
+                />
+              </div>
+
               <p>
                 <strong>Categoria:</strong> {selectedProdotto.categoriaNome}
               </p>
@@ -400,31 +573,30 @@ const Prodotti = () => {
                   Disponibili: {selectedProdotto?.stock}
                 </span>
               </div>
-              <div>
-                <div className="d-flex justify-content-between w-100">
-                  <Button variant="secondary" onClick={handleClose}>
-                    Chiudi
-                  </Button>
-                  <Button
-                    variant="success"
-                    onClick={() => handleAddToCart(selectedProdotto)}
-                    disabled={!token || selectedProdotto.stock === 0}
-                  >
-                    <i className="bi bi-cart-plus"></i> Aggiungi al carrello
-                  </Button>
-                </div>
 
-                {!token && (
-                  <div className="m-0">
-                    <p className="text-danger text-end mt-1 mb-0 pe-1">
-                      Effettua il Login !
-                    </p>
-                  </div>
-                )}
+              <div className="d-flex justify-content-between w-100">
+                <Button variant="secondary" onClick={handleClose}>
+                  Chiudi
+                </Button>
+                <Button
+                  variant="success"
+                  onClick={() => handleAddToCart(selectedProdotto)}
+                  disabled={!token || selectedProdotto.stock === 0}
+                >
+                  <i className="bi bi-cart-plus"></i> Aggiungi
+                </Button>
               </div>
+
+              {!token && (
+                <p className="text-danger text-end mt-2 mb-0 pe-1">
+                  Effettua il login!
+                </p>
+              )}
             </Modal.Footer>
           </Modal>
         )}
+
+        {/* CONFERMA AGGIUNTA CARRELLO */}
         <Modal
           show={showMessaggioModal}
           onHide={() => setShowMessaggioModal(false)}
@@ -446,6 +618,123 @@ const Prodotti = () => {
             </Button>
           </Modal.Footer>
         </Modal>
+
+        {/* MODIFICA / CREA PRODOTTO */}
+        <Modal
+          show={showCreateModal}
+          onHide={() => {
+            setShowCreateModal(false);
+            setEditingProdotto(null);
+          }}
+          centered
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>
+              {editingProdotto ? "Modifica Prodotto" : "Crea Nuovo Prodotto"}
+            </Modal.Title>
+          </Modal.Header>
+
+          <Modal.Body>
+            <form
+              onSubmit={
+                editingProdotto ? handleModificaProdotto : handleCreaProdotto
+              }
+            >
+              <div className="mb-3">
+                <label className="form-label">Nome prodotto</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={nomeProdotto}
+                  onChange={(e) => setNomeProdotto(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label">Prezzo (€)</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  value={prezzoProdotto}
+                  onChange={(e) => setPrezzoProdotto(e.target.value)}
+                  min={0}
+                  step="0.01"
+                  required
+                />
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label">Stock disponibile</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  value={stock}
+                  onChange={(e) => setStock(e.target.value)}
+                  min={0}
+                  required
+                />
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label">Categoria</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={nomeCategoria}
+                  onChange={(e) => setNomeCategoria(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label">Descrizione</label>
+                <textarea
+                  className="form-control"
+                  rows={3}
+                  value={descrizioneProdotto}
+                  onChange={(e) => setDescrizioneProdotto(e.target.value)}
+                  required
+                ></textarea>
+              </div>
+
+              {!editingProdotto && (
+                <div className="mb-3">
+                  <label className="form-label">Immagine</label>
+                  <input
+                    type="file"
+                    className="form-control"
+                    accept="image/*"
+                    onChange={(e) => setImmagineFile(e.target.files[0])}
+                    required
+                  />
+                </div>
+              )}
+
+              <div className="d-flex justify-content-end gap-2">
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setShowCreateModal(false);
+                    setEditingProdotto(null);
+                  }}
+                >
+                  Annulla
+                </Button>
+                <Button type="submit" variant="success">
+                  {editingProdotto ? "Salva Modifiche" : "Crea"}
+                </Button>
+              </div>
+            </form>
+          </Modal.Body>
+        </Modal>
+
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="scroll-to-top-btn"
+        >
+          <i className="bi bi-arrow-up"></i>
+        </button>
       </div>
     </div>
   );

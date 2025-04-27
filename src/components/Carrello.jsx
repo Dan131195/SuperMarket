@@ -137,7 +137,7 @@ const Carrello = () => {
           />
         </div>
       ) : carrello.length === 0 ? (
-        <div>
+        <div className="p-lg-5 pt-lg-0">
           <div className="text-center d-flex flex-column flex-md-row  justify-content-center align-items-center">
             <img src={emptyCart} alt="Il Carre è vuoto" className="w-50" />
             <p className=" fw-semibold text-white w-50 text-start ps-2 emptyCart">
