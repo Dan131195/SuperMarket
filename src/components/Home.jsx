@@ -1,22 +1,25 @@
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 import fruttaVerdura from "../assets/img/fruttaVerdura.png";
 import logoImg from "../assets/img/logo.png";
 import logoImg2 from "../assets/img/logo3.png";
 import fastCart from "../assets/img/fastCart2.png";
 import promo2X1 from "../assets/img/promo2X1.png";
-import { Link } from "react-router-dom";
 
 const Home = () => {
   useEffect(() => {
     document.title = "SpeedMarket - Home";
   }, []);
 
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
+
   return (
     <div className="homeContainer d-flex align-items-center justify-content-center text-white">
       <div className="container text-center my-2 my-lg-4 my-xl-0">
         <div className="row justify-content-center">
           <div className="col-md-10 col-lg-9">
-            <div className="p-4 p-md-5 rounded-4 my-2 shadow-lg homeOpacity">
+            <div className="p-4 p-md-5 rounded-4 my-2 shadow-lg homeOpacity promos">
               <div className="text-center d-flex align-items-center justify-content-center">
                 <img
                   src={logoImg}
@@ -29,10 +32,33 @@ const Home = () => {
                 {/* <img src={fastCartImg} id="fastCartImg" /> */}
               </div>
               <div className=" text-center mt-4  m-auto">
-                <h1 className="m-0 p-0 text-center text-light">
-                  Benvenuti su{" "}
-                  <img src={logoImg2} alt="Logo SpeedMarket" width={150} />
-                </h1>
+                <div className="text-center text-light">
+                  <h1 className="m-0 p-0">
+                    {isAuthenticated ? (
+                      <>
+                        {console.log(user.name)}
+                        Ciao <span className="text-light">
+                          {user?.name},
+                        </span>{" "}
+                        benvenuto su{" "}
+                        <img
+                          src={logoImg2}
+                          alt="Logo SpeedMarket"
+                          width={150}
+                        />
+                      </>
+                    ) : (
+                      <>
+                        Benvenuti su{" "}
+                        <img
+                          src={logoImg2}
+                          alt="Logo SpeedMarket"
+                          width={150}
+                        />
+                      </>
+                    )}
+                  </h1>
+                </div>
                 <p className="mt-4 fs-4">
                   La tua spesa pronta quando lo sei tu. <br />
                   Su <span className="speedMarket">SpeedMarket</span> fai la
@@ -61,8 +87,8 @@ const Home = () => {
           </div>
           <div className="row mt-0 col-12 col-lg-3 mx-auto justify-content-center">
             <div className="col-md-10 col-lg-12 p-2">
-              <div className="card bg-light h-100 shadow-sm rounded-4 promos">
-                <div className="card-body d-flex flex-column justify-content-between">
+              <div className="card homeOpacity bg-light h-100 shadow-sm rounded-4 promos">
+                <div className="card-body d-flex flex-column justify-content-between text-light">
                   <h4 className="card-title">🤑 Offerta Speciale</h4>
                   <p className="card-text d-flex align-items-center">
                     <span className="d-flex justify-content-between align-items-center flex-lg-column">
@@ -84,8 +110,8 @@ const Home = () => {
               </div>
             </div>
             <div className="col-md-10 col-lg-12 p-2">
-              <div className="card bg-light h-100 shadow-sm rounded-4 promos">
-                <div className="card-body d-flex flex-column justify-content-between">
+              <div className="card homeOpacity bg-light h-100 shadow-sm rounded-4 promos">
+                <div className="card-body d-flex flex-column justify-content-between text-light">
                   <h4 className="card-title">🔥 Super Sconto</h4>
                   <p className="card-text d-flex align-items-center">
                     <span className="d-flex justify-content-between align-items-center flex-lg-column">
@@ -100,7 +126,7 @@ const Home = () => {
                       </p>
                     </span>
                   </p>
-                  <Link className="btn btn-warning mt-3" to="/prodotti">
+                  <Link className="btn btn-success mt-3" to="/prodotti">
                     Vedi dettagli
                   </Link>
                 </div>

@@ -6,9 +6,24 @@ import { logout } from "../store/authSlice";
 const NavBar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { isAuthenticated, user } = useSelector((state) => state.auth);
+
+  const { token, user } = useSelector((state) => state.auth);
+  const isAuthenticated = Boolean(token);
   const cartItems = useSelector((state) => state.cart.items);
   const cartCount = cartItems.reduce((acc, item) => acc + item.quantita, 0);
+
+  let payload = null;
+  let userRole = null;
+
+  if (token) {
+    try {
+      payload = JSON.parse(atob(token.split(".")[1]));
+      userRole =
+        payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+    } catch (error) {
+      console.error("Token non valido", error);
+    }
+  }
 
   const handleLogout = () => {
     dispatch(logout());
@@ -82,7 +97,9 @@ const NavBar = () => {
                     data-bs-toggle="dropdown"
                   >
                     <i className="bi bi-person-fill me-1"></i>
-                    {user?.name || "Profilo"}
+                    <span className="me-1">
+                      {user?.name?.split(" ")[0] || "Profilo"}
+                    </span>
                   </button>
                   <ul className="dropdown-menu dropdown-menu-end profileLink border-white">
                     <li className="profileLink">
@@ -102,6 +119,17 @@ const NavBar = () => {
                         <i className="bi bi-bag-check-fill"></i> I miei ordini
                       </Link>
                     </li>
+                    {userRole === "SuperAdmin" && (
+                      <li className="profileLink">
+                        <Link
+                          className="dropdown-item profileLink profileLinkHover"
+                          to="/registra-admin"
+                        >
+                          <i className="bi bi-person-fill-add"></i> Registra
+                          Admin
+                        </Link>
+                      </li>
+                    )}
                     <li className="profileLink border-top border-1">
                       <button
                         className="dropdown-item text-danger fw-bold profileLinkHover"

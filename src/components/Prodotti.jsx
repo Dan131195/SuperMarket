@@ -318,7 +318,7 @@ const Prodotti = () => {
   }
 
   return (
-    <div className="p-0">
+    <div className="mx-md-1 mx-lg-2 mx-lg-3 mx-xxl-4">
       <div className="py-3 row m-0">
         {/*  */}
         {/* Categorie SideBar */}
@@ -338,7 +338,7 @@ const Prodotti = () => {
                 src={allCategoriesIcon}
                 alt=""
                 width={45}
-                className="border border-2 border-light rounded-5 p-1 categoryIcon"
+                className="border border-2 border-light rounded-5 p-1 categoryIcon me-md-1 me-lg-2"
               />{" "}
               Tutte
             </p>
@@ -356,7 +356,7 @@ const Prodotti = () => {
                   src={getCategoriaImage(cat.nomeCategoria)}
                   alt={cat.nomeCategoria}
                   width={45}
-                  className="border border-2 border-light rounded-5 categoryIcon p-1"
+                  className="border border-2 border-light rounded-5 categoryIcon p-1 me-md-1 me-lg-2"
                 />
                 {cat.nomeCategoria}
               </p>

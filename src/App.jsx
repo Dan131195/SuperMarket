@@ -10,6 +10,8 @@ import Carrello from "./components/Carrello";
 import Checkout from "./components/Checkout";
 import StoricoOrdini from "./components/StoricoOrdini";
 import Error from "./components/Error";
+import Profilo from "./components/Profilo";
+import RegisterAdmin from "./components/RegisterAdmin";
 
 function App() {
   return (
@@ -20,7 +22,8 @@ function App() {
         <div className="main">
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            <Route path="/registrazione" element={<Register />} />
+            <Route path="/registra-admin" element={<RegisterAdmin />} />
 
             <Route path="/" element={<Home />} />
             <Route path="/prodotti" element={<Prodotti />} />
@@ -29,6 +32,8 @@ function App() {
 
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/storico-ordini" element={<StoricoOrdini />} />
+
+            <Route path="/profilo" element={<Profilo />} />
 
             <Route path="*" element={<Error />} />
           </Routes>

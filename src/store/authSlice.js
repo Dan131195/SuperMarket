@@ -1,33 +1,31 @@
 import { createSlice } from "@reduxjs/toolkit";
-
-const userFromStorage = JSON.parse(localStorage.getItem("user"));
+import icon1 from "../assets/images/icon-1.png"; // importa il default
 
 const initialState = {
-  user: userFromStorage?.user || null,
-  token: userFromStorage?.token || null,
-  isAuthenticated: !!userFromStorage?.token,
+  token: null,
+  user: null,
+  profileIcon: icon1, // 👈 aggiunto
 };
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    loginSuccess(state, action) {
-      state.user = action.payload.user;
+    setCredentials: (state, action) => {
       state.token = action.payload.token;
-      state.isAuthenticated = true;
-
-      localStorage.setItem("user", JSON.stringify(action.payload));
+      state.user = action.payload.user;
     },
-    logout(state) {
-      state.user = null;
+    logout: (state) => {
       state.token = null;
-      state.isAuthenticated = false;
-
-      localStorage.removeItem("user");
+      state.user = null;
+      state.profileIcon = icon1; // resetta icona al logout
+    },
+    setProfileIcon: (state, action) => {
+      state.profileIcon = action.payload;
     },
   },
 });
 
-export const { loginSuccess, logout } = authSlice.actions;
+export const { setCredentials, logout, setProfileIcon } = authSlice.actions;
+
 export default authSlice.reducer;

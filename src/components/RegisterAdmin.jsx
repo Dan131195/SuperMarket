@@ -1,35 +1,46 @@
-// src/pages/Register.jsx
-import { useState } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+// src/pages/RegisterAdmin.jsx
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Button, Form, Alert, Container, Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import logoImg from "../assets/img/logo3.png";
 
-const Register = () => {
+const RegisterAdmin = () => {
   const token = useSelector((state) => state.auth.token);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
     password: "",
-    ruolo: "User",
-    codiceFiscale: "",
+    ruolo: "Admin",
   });
   const [loading, setLoading] = useState(false);
   const [messaggio, setMessaggio] = useState(null);
+  const [userRole, setUserRole] = useState(null);
   const navigate = useNavigate();
 
-  // Decodifica token per vedere se l'utente è SuperAdmin
-  let userRole = null;
-  if (token) {
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      userRole =
-        payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
-    } catch (error) {
-      console.error("Token non valido", error);
+  useEffect(() => {
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        const role =
+          payload[
+            "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+          ];
+        setUserRole(role);
+
+        if (userRole !== "SuperAdmin") {
+          navigate("/*");
+        }
+      } catch (error) {
+        console.error("Token non valido", error);
+        navigate("/errore");
+      }
+    } else {
+      navigate("/errore");
     }
-  }
+  }, [token, navigate]);
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -44,23 +55,28 @@ const Register = () => {
     setMessaggio(null);
 
     try {
-      const res = await fetch("https://localhost:7006/api/account/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData),
-      });
+      const res = await fetch(
+        "https://localhost:7006/api/account/registeradmin",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(formData),
+        }
+      );
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || "Errore durante la registrazione");
+        throw new Error(
+          errorData.message || "Errore durante la registrazione admin"
+        );
       }
 
       const data = await res.json();
       setMessaggio(
-        `✅ Registrazione completata per ${data.fullName} (${data.ruolo})`
+        `✅ Registrazione Admin completata per ${data.fullName} - ${data.email} (${data.ruolo})`
       );
 
       setFormData({
@@ -68,8 +84,7 @@ const Register = () => {
         lastName: "",
         email: "",
         password: "",
-        ruolo: "User",
-        codiceFiscale: "",
+        ruolo: "Admin",
       });
 
       setTimeout(() => {
@@ -84,13 +99,13 @@ const Register = () => {
   };
 
   return (
-    <div className="login py-3 ">
+    <div className="login py-3">
       <Container
         className="loginCard rounded-4 py-2"
         style={{ maxWidth: "400px" }}
       >
         <h2 className="text-center mb-1">
-          Registrati su <img src={logoImg} alt="Logo SpeedMarket" width={120} />
+          Registra un Admin su <img src={logoImg} alt="Logo" width={120} />
         </h2>
 
         {messaggio && (
@@ -104,7 +119,7 @@ const Register = () => {
 
         <Form onSubmit={handleSubmit} className="m-2 p-2">
           <Form.Group className="mb-3">
-            <Form.Label className="">Nome</Form.Label>
+            <Form.Label>Nome</Form.Label>
             <Form.Control
               type="text"
               name="firstName"
@@ -115,7 +130,7 @@ const Register = () => {
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label className="">Cognome</Form.Label>
+            <Form.Label>Cognome</Form.Label>
             <Form.Control
               type="text"
               name="lastName"
@@ -126,7 +141,7 @@ const Register = () => {
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label className="">Email</Form.Label>
+            <Form.Label>Email</Form.Label>
             <Form.Control
               type="email"
               name="email"
@@ -137,7 +152,7 @@ const Register = () => {
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label className="">Password</Form.Label>
+            <Form.Label>Password</Form.Label>
             <Form.Control
               type="password"
               name="password"
@@ -148,47 +163,30 @@ const Register = () => {
             />
           </Form.Group>
 
-          {/* Se sono SuperAdmin posso scegliere il ruolo */}
-          {userRole === "SuperAdmin" ? (
-            <Form.Group className="mb-3">
-              <Form.Label className="">Ruolo</Form.Label>
-              <Form.Select
-                name="ruolo"
-                value={formData.ruolo}
-                onChange={handleChange}
-              >
-                <option value="User">User</option>
-                <option value="Admin">Admin</option>
-                <option value="SuperAdmin">SuperAdmin</option>
-              </Form.Select>
-            </Form.Group>
-          ) : (
-            <input type="hidden" name="ruolo" value="User" />
-          )}
-
           <Form.Group className="mb-3">
-            <Form.Label className="">Codice Fiscale</Form.Label>
-            <Form.Control
-              type="text"
-              name="codiceFiscale"
-              value={formData.codiceFiscale}
+            <Form.Label>Ruolo</Form.Label>
+            <Form.Select
+              name="ruolo"
+              value={formData.ruolo}
               onChange={handleChange}
-              required
-            />
+            >
+              <option value="Admin">Admin</option>
+              <option value="SuperAdmin">SuperAdmin</option>
+            </Form.Select>
           </Form.Group>
 
           <div className="d-flex justify-content-center">
             <Button
-              variant="success"
+              variant="primary"
               type="submit"
               disabled={loading}
-              className=" w-50"
+              className="w-50"
             >
               {loading ? (
                 <Spinner size="sm" animation="border" />
               ) : (
                 <span>
-                  <i className="bi bi-person-fill-add"></i> Registrati
+                  <i className="bi bi-person-fill-add"></i> Crea Admin
                 </span>
               )}
             </Button>
@@ -199,4 +197,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default RegisterAdmin;

@@ -1,30 +1,30 @@
-import { loginSuccess } from "../store/authSlice";
+import { setCredentials } from "../store/authSlice";
 
 export const login = (credentials) => async (dispatch) => {
   try {
     const response = await fetch("https://localhost:7006/api/account/login", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(credentials),
     });
 
-    if (!response.ok) {
-      throw new Error("Credenziali non valide");
-    }
+    if (!response.ok) throw new Error("Credenziali non valide");
 
     const data = await response.json();
-
     const { token, userId, email, roles } = data;
 
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    const name =
+      payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"];
+
     dispatch(
-      loginSuccess({
+      setCredentials({
         token,
         user: {
           id: userId,
           email,
-          role: roles[0], // 👈 prendi il PRIMO ruolo (es. "User" o "Admin")
+          roles,
+          name,
         },
       })
     );

@@ -7,6 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { setCart } from "../store/cartSlice";
 import fastCart from "../assets/img/fastCart2.png";
 import emptyCart from "../assets/img/empty-cart.png";
+import giftCard from "../assets/img/gift.png";
 
 const Carrello = () => {
   const [carrello, setCarrello] = useState([]);
@@ -91,7 +92,6 @@ const Carrello = () => {
         },
       });
       if (!res.ok) throw new Error("Errore nello svuotamento");
-      // mostraMessaggio("Carrello svuotato 🧹");
       await caricaCarrello();
     } catch (error) {
       console.error(error);
@@ -104,10 +104,12 @@ const Carrello = () => {
 
   useEffect(() => {
     document.title = "SpeedMarket - Carrello";
-    if (userId) {
+    if (!token || !userId) {
+      navigate("*");
+    } else {
       caricaCarrello();
     }
-  }, [userId]);
+  }, [token, userId]);
 
   const totale = carrello.reduce(
     (sum, item) => sum + item.quantita * item.prezzoUnitario,
@@ -152,9 +154,15 @@ const Carrello = () => {
           </Link>
         </div>
       ) : (
-        <>
-          <div className="table-responsive carrelloTableContainer pb-3">
-            <table className="table table-hover align-middle rounded shadow">
+        <div className="d-flex flex-column flex-lg-row">
+          <div
+            className="table-responsive carrelloTableContainer pb-3 col-12 col-lg-8"
+            id="carrelloTableList"
+          >
+            <table
+              className="table table-hover align-middle rounded shadow"
+              id=""
+            >
               <thead className="table-light p-2 p-md-0">
                 {/* SOLO MOBILE */}
                 <tr className="d-flex d-md-none">
@@ -175,7 +183,7 @@ const Carrello = () => {
                 </tr>
               </thead>
 
-              <tbody>
+              <tbody id="">
                 {carrello.map((item) => (
                   <tr key={item.prodottoCarrelloId}>
                     <td className="d-flex flex-column flex-md-row align-items-center  gap-3">
@@ -215,12 +223,9 @@ const Carrello = () => {
 
                     <td className="d-md-none">
                       <div
-                        className="d-flex flex-column justify-content-between h-100"
+                        className="d-flex flex-column justify-content-center h-100"
                         style={{ minHeight: "80px" }}
                       >
-                        <p className="m-0">
-                          € {item.prezzoUnitario.toFixed(2)}
-                        </p>
                         <p className="m-0">
                           € {(item.quantita * item.prezzoUnitario).toFixed(2)}
                         </p>
@@ -247,24 +252,41 @@ const Carrello = () => {
               </tbody>
             </table>
           </div>
+          <div className="col-12 col-lg-4 mt-lg-5">
+            <div className="text-white text-start text-lg-end mt-4">
+              <span>EasyGift </span>
+              <img src={giftCard} alt="" className="text-end" />
+              <h5 className="ps-3 w-100">Non hai un codice promozionale ?</h5>
 
-          <div className="d-flex justify-content-between align-items-center mt-4 gap-2">
-            <h4 className="text-start text-white w-100">
-              Totale: <span>€ {totale.toFixed(2)}</span>
-            </h4>
-            <button className="btn btn-danger" onClick={svuotaCarrello}>
-              <i className="bi bi-cart-x"></i> Svuota
-            </button>
+              <p className="ms-lg-2 ms-xl-3 ms-xxl-5">
+                Richiedi un codice card EasyGift comodamente da casa tua, clicca
+                qui
+              </p>
+            </div>
+            <div className="d-flex justify-content-between align-items-center flex-lg-column justify-content-lg-around mt-4 gap-2 text-end">
+              <div className="text-start text-lg-end w-100 mt-lg-5">
+                <button
+                  className="btn btn-danger me-1"
+                  onClick={svuotaCarrello}
+                >
+                  <i className="bi bi-cart-x"></i> Svuota
+                </button>
 
-            <button
-              className="btn btn-success"
-              onClick={checkout}
-              disabled={carrello.length === 0}
-            >
-              <i className="bi bi-bag-check"></i> Checkout
-            </button>
+                <button
+                  className="btn btn-success"
+                  onClick={checkout}
+                  disabled={carrello.length === 0}
+                >
+                  <i className="bi bi-bag-check"></i> Checkout
+                </button>
+              </div>
+
+              <h4 className="text-end text-white w-100 mt-lg-3">
+                Totale: <span>€ {totale.toFixed(2)}</span>
+              </h4>
+            </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );

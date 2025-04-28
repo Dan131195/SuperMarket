@@ -1,7 +1,8 @@
 import { useDispatch } from "react-redux";
 import { login } from "../services/authService";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import logoImg from "../assets/img/logo3.png";
 
 function Login() {
   const dispatch = useDispatch();
@@ -9,14 +10,15 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [message, setMessage] = useState(false);
 
   const handleLogin = async () => {
     try {
       await dispatch(login({ email, password }));
-      alert("Login effettuato!");
       navigate("/");
     } catch (error) {
-      alert("Login fallito: " + error.message);
+      console.error(error);
+      setMessage(true);
     }
   };
 
@@ -26,12 +28,14 @@ function Login() {
 
   return (
     <div className="container d-flex justify-content-center align-items-center login h-100">
-      <div className="loginForm">
+      <div className="loginCard p-4 rounded-3">
         <div
-          className="card shadow p-4 w-100 loginCard"
+          className=" bg-transparent p-3 w-100"
           style={{ maxWidth: "400px" }}
         >
-          <h3 className="text-center mb-4">Accedi a SpeedMarket</h3>
+          <h3 className="text-center mb-4">
+            Accedi a <img src={logoImg} alt="Logo SpeedMarket" width={100} />
+          </h3>
 
           <form
             onSubmit={(e) => {
@@ -89,8 +93,15 @@ function Login() {
               </button>
             </div>
 
+            {message && (
+              <p className="text-danger text-center">Credenziali non valide!</p>
+            )}
+
             <p className="text-center small">
-              Non hai un account? <a href="/register">Registrati</a>
+              Non hai un account?{" "}
+              <Link to="/registrazione" className="text-decoration-underline">
+                Registrati
+              </Link>
             </p>
           </form>
         </div>

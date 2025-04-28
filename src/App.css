@@ -50,12 +50,22 @@ nav {
   border-bottom: 3px solid #e4890a !important;
 }
 
-footer {
-  border-top: 5px solid #e4890a;
+.carrelloTable {
+  background-color: #516b24 !important;
+}
+
+.carrelloTableContainer {
+  border-radius: 10px !important;
+  box-shadow: 0 0 20px #fff;
+  border: 2px solid #e4890a;
 }
 
 .trCarrello {
   border: 3px solid #cc7a08;
+}
+
+footer {
+  border-top: 5px solid #e4890a;
 }
 
 .logoImg {
@@ -77,7 +87,6 @@ footer {
 
 .promos {
   border: 5px solid #cc7a08;
-  background-color: #ffffffc1 !important;
 }
 
 .navbar-toggler {
@@ -138,7 +147,7 @@ footer {
 .productImage {
   background-position: center;
   padding: 10px;
-  max-height: 230px;
+  max-height: 160px;
 }
 
 @media screen and (min-width: 576px) {
@@ -182,22 +191,37 @@ footer {
   overflow-y: auto;
 }
 
+#carrelloTableList {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
 #categoryList::-webkit-scrollbar,
 #categoryList2::-webkit-scrollbar,
-#categoryCarousel::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
-  padding: 2px;
+#categoryCarousel::-webkit-scrollbar,
+#carrelloTableList::-webkit-scrollbar {
+  width: 8px;
+  background-color: transparent;
+  border-radius: 20px;
+}
+
+#carrelloTableList::-webkit-scrollbar {
+  background-color: #516b24;
 }
 
 #categoryCarousel::-webkit-scrollbar-thumb,
-#categoryList2::-webkit-scrollbar-thumb {
-  background-color: #e4890aaf;
+#categoryList2::-webkit-scrollbar-thumb,
+#carrelloTableList::-webkit-scrollbar-thumb {
+  background-color: #c27a17c3;
   border-radius: 10px;
 }
 
+#carrelloTableList::-webkit-scrollbar-thumb {
+  background-color: #e4890a;
+}
+
 .homeOpacity {
-  background-color: #413b32e5;
+  background-color: #413b32e5 !important;
 }
 
 .confetti-wrapper {
@@ -286,16 +310,6 @@ footer {
 
 .speedMarket {
   color: #cc7a08;
-}
-
-.carrelloTable {
-  background-color: #516b24 !important;
-}
-
-.carrelloTableContainer {
-  border-radius: 10px !important;
-  box-shadow: 5px 5px 15px#fff;
-  box-shadow: -5px -5px 15px#fff;
 }
 
 .profileLink {
