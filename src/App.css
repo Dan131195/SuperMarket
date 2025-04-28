@@ -220,6 +220,10 @@ footer {
   background-color: #e4890a;
 }
 
+.table-hoverr:hover {
+  background-color: #e4890ab9 !important;
+}
+
 .homeOpacity {
   background-color: #413b32e5 !important;
 }

@@ -160,7 +160,7 @@ const Carrello = () => {
             id="carrelloTableList"
           >
             <table
-              className="table table-hover align-middle rounded shadow"
+              className="table  table-borderless align-middle rounded shadow"
               id=""
             >
               <thead className="table-light p-2 p-md-0">
@@ -185,7 +185,7 @@ const Carrello = () => {
 
               <tbody id="">
                 {carrello.map((item) => (
-                  <tr key={item.prodottoCarrelloId}>
+                  <tr key={item.prodottoCarrelloId} className="table-hoverr">
                     <td className="d-flex flex-column flex-md-row align-items-center  gap-3">
                       <img
                         src={`https://localhost:7006${item.immagineFile}`}
@@ -252,11 +252,13 @@ const Carrello = () => {
               </tbody>
             </table>
           </div>
-          <div className="col-12 col-lg-4 mt-lg-5">
+          <div className="col-12 col-lg-4 mt-lg-5 ps-2">
             <div className="text-white text-start text-lg-end mt-4">
               <span>EasyGift </span>
               <img src={giftCard} alt="" className="text-end" />
-              <h5 className="ps-3 w-100">Non hai un codice promozionale ?</h5>
+              <h5 className="ms-xl-2 ps-xl-2 ps-xxl-3 text-lg-end">
+                Non hai un codice promo ?
+              </h5>
 
               <p className="ms-lg-2 ms-xl-3 ms-xxl-5">
                 Richiedi un codice card EasyGift comodamente da casa tua, clicca
