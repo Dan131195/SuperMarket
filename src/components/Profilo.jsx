@@ -5,18 +5,15 @@ import icon1 from "../assets/images/icon-1.png";
 import icon2 from "../assets/images/icon-2.png";
 import icon3 from "../assets/images/icon-3.png";
 import icon4 from "../assets/images/icon-4.png";
+import { Link } from "react-router-dom";
 
 const Profilo = () => {
   const { token } = useSelector((state) => state.auth);
 
   const [cliente, setCliente] = useState(null);
   const [clienti, setClienti] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [errore, setErrore] = useState(null);
-  const [showClientiModal, setShowClientiModal] = useState(false);
-  const [selectedIcon, setSelectedIcon] = useState(
-    localStorage.getItem("selectedProfileIcon") || icon1
-  );
 
   const listIconsProfile = [icon1, icon2, icon3, icon4];
 
@@ -41,7 +38,24 @@ const Profilo = () => {
   useEffect(() => {
     document.title = "SpeedMarket - Profilo";
 
+    const fetchClienti = async () => {
+      try {
+        const res = await fetch(`https://localhost:7006/api/cliente`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!res.ok) throw new Error("Errore nel recupero clienti");
+
+        const data = await res.json();
+        setClienti(data);
+      } catch (err) {
+        console.error(err);
+        alert("❌ Errore caricamento lista clienti");
+      }
+    };
+
     const fetchCliente = async () => {
+      setLoading(true);
       try {
         const res = await fetch(
           `https://localhost:7006/api/cliente/${userId}`,
@@ -62,37 +76,20 @@ const Profilo = () => {
       }
     };
 
-    if (userId) {
+    if (userRole === "User" || userRole === "Seller") {
       fetchCliente();
+    } else {
+      fetchClienti();
     }
   }, [token, userId]);
 
-  const fetchClienti = async () => {
-    try {
-      const res = await fetch(`https://localhost:7006/api/cliente`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!res.ok) throw new Error("Errore nel recupero clienti");
-
-      const data = await res.json();
-      setClienti(data);
-      setShowClientiModal(true);
-    } catch (err) {
-      console.error(err);
-      alert("❌ Errore caricamento lista clienti");
-    }
-  };
-
   const handleIconSelect = (icon) => {
-    setSelectedIcon(icon);
+    // setSelectedIcon(icon);
     localStorage.setItem("selectedProfileIcon", icon);
   };
 
   return (
     <div className="container py-4">
-      <h2 className="text-light mb-4">Il Mio Profilo</h2>
-
       {loading && (
         <div className="text-center">
           <Spinner
@@ -114,74 +111,8 @@ const Profilo = () => {
 
       {userRole === "Admin" || userRole === "SuperAdmin" ? (
         <div className="mb-4">
-          <Button variant="info" onClick={fetchClienti}>
-            <i className="bi bi-people"></i> Visualizza Tutti i Clienti
-          </Button>
-        </div>
-      ) : (
-        cliente && (
-          <div className="card shadow p-4">
-            <div className="text-center mb-3">
-              <img
-                src={selectedIcon}
-                alt="Icona Profilo"
-                width={100}
-                height={100}
-                className="rounded-circle border border-2"
-              />
-            </div>
+          <h2 className="text-light mb-4">Lista profili</h2>
 
-            <h4 className="mb-3 text-primary">
-              Benvenuto {cliente.nomeCompleto.split(" ")[0]}!
-            </h4>
-            <p>
-              <strong>Email:</strong> {cliente.email}
-            </p>
-            <p>
-              <strong>Codice Fiscale:</strong> {cliente.codiceFiscale}
-            </p>
-
-            <div className="mb-3">
-              <h5 className="text-success">Scegli la tua icona profilo:</h5>
-              <div className="d-flex justify-content-center gap-3 mt-2">
-                {listIconsProfile.map((icon, idx) => (
-                  <img
-                    key={idx}
-                    src={icon}
-                    alt={`Icon ${idx}`}
-                    width={60}
-                    height={60}
-                    className={`rounded-circle border ${
-                      selectedIcon === icon
-                        ? "border-success border-4"
-                        : "border-2"
-                    }`}
-                    style={{ cursor: "pointer" }}
-                    onClick={() => handleIconSelect(icon)}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <div className="d-flex gap-2 mt-3">
-              <Button variant="warning">Modifica Profilo</Button>
-              <Button variant="danger">Elimina Account</Button>
-            </div>
-          </div>
-        )
-      )}
-
-      {/* Modal Lista Clienti */}
-      <Modal
-        show={showClientiModal}
-        onHide={() => setShowClientiModal(false)}
-        size="lg"
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Lista Clienti</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
           <Table striped bordered hover responsive>
             <thead>
               <tr>
@@ -200,16 +131,91 @@ const Profilo = () => {
               ))}
             </tbody>
           </Table>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="secondary"
-            onClick={() => setShowClientiModal(false)}
-          >
-            Chiudi
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        </div>
+      ) : (
+        cliente && (
+          <div className="container">
+            <h2 className="text-light mb-4">Il Mio Profilo</h2>
+
+            <div className="card shadow p-4">
+              <h4 className="speedMarket text-center  mb-3">
+                Benvenuto {cliente.nome}!
+              </h4>
+
+              <div className="mb-3 d-flex justify-content-between align-items-center">
+                <p className="m-0">
+                  <strong>Nome:</strong> {cliente.nome}
+                </p>
+                <Link>Modifica Profilo</Link>
+              </div>
+              <p>
+                <strong>Cogome:</strong> {cliente.cognome}
+              </p>
+              <p>
+                <strong>Codice Fiscale:</strong> {cliente.codiceFiscale}
+              </p>
+
+              <div className="mb-3 d-flex justify-content-between align-items-center">
+                <p className="m-0">
+                  <strong>Email:</strong> {cliente.email}
+                </p>
+                <Link className="modificaLink">Modifica Email</Link>
+              </div>
+
+              <div className="mb-3 d-flex justify-content-between align-items-center">
+                <p className="m-0">
+                  <strong>Indirizzo:</strong> {cliente.indirizzo}
+                </p>
+                <Link className="modificaLink">Modifica Indirizzo</Link>
+              </div>
+
+              <div className="mb-3 d-flex justify-content-between align-items-center">
+                <div className="d-flex align-items-center">
+                  <p className="m-0 ">
+                    <strong>Immagine profilo:</strong>
+                  </p>
+                  <img
+                    src={
+                      cliente.immagineProfilo
+                        ? `https://localhost:7006/${cliente.immagineProfilo}`
+                        : icon1
+                    }
+                    alt="Icona Profilo"
+                    width={80}
+                    height={80}
+                    className="rounded-circle border border-2 ms-2"
+                  />
+                </div>
+
+                <Link className="modificaLink">Modifica Immagine</Link>
+              </div>
+
+              <div className="mb-3">
+                <h5 className="text-success">Scegli la tua icona profilo:</h5>
+                <div className="d-flex justify-content-center gap-3 mt-2">
+                  {listIconsProfile.map((icon, idx) => (
+                    <img
+                      key={idx}
+                      src={icon}
+                      alt={`Icon ${idx}`}
+                      width={60}
+                      height={60}
+                      className={`rounded-circle border `}
+                      style={{ cursor: "pointer" }}
+                      onClick={() => handleIconSelect(icon)}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="d-flex gap-2 mt-3">
+                <Button variant="warning">Modifica Profilo</Button>
+                <Button variant="danger">Elimina Account</Button>
+              </div>
+            </div>
+          </div>
+        )
+      )}
     </div>
   );
 };

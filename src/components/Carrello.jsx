@@ -104,9 +104,12 @@ const Carrello = () => {
 
   useEffect(() => {
     document.title = "SpeedMarket - Carrello";
+
     if (!token || !userId) {
-      navigate("*");
+      navigate("/login");
     } else {
+      setCarrello([]);
+      dispatch(setCart([]));
       caricaCarrello();
     }
   }, [token, userId]);
@@ -141,17 +144,28 @@ const Carrello = () => {
       ) : carrello.length === 0 ? (
         <div className="p-lg-5 pt-lg-0">
           <div className="text-center d-flex flex-column flex-md-row  justify-content-center align-items-center">
-            <img src={emptyCart} alt="Il Carre è vuoto" className="w-50" />
-            <p className=" fw-semibold text-white w-50 text-start ps-2 emptyCart">
+            <p className="d-md-none fw-semibold text-white text-center ps-2 emptyCart">
               Ops, il carrello è vuoto..
             </p>
+            <img
+              src={emptyCart}
+              alt="Il Carre è vuoto"
+              width={350}
+              className=""
+            />
+            <div className="w-50">
+              <p className="d-none d-md-block fw-semibold text-white text-center ps-2 emptyCart">
+                Ops, il carrello è vuoto..
+              </p>
+              <Link
+                to="/prodotti"
+                className="btn btn-success py-2 px-4 m-auto mt-2 nuovoProdottoBtn "
+                width={300}
+              >
+                Vai a Prodotti
+              </Link>
+            </div>
           </div>
-          <Link
-            to="/prodotti"
-            className="btn btn-success p-2 d-block w-50 m-auto"
-          >
-            Vai a Prodotti
-          </Link>
         </div>
       ) : (
         <div className="d-flex flex-column flex-lg-row">
@@ -160,7 +174,7 @@ const Carrello = () => {
             id="carrelloTableList"
           >
             <table
-              className="table  table-borderless align-middle rounded shadow"
+              className="table table-borderless align-middle rounded shadow"
               id=""
             >
               <thead className="table-light p-2 p-md-0">
@@ -183,10 +197,11 @@ const Carrello = () => {
                 </tr>
               </thead>
 
+              {/* Prodotti */}
               <tbody id="">
                 {carrello.map((item) => (
-                  <tr key={item.prodottoCarrelloId} className="table-hoverr">
-                    <td className="d-flex flex-column flex-md-row align-items-center  gap-3">
+                  <tr key={item.prodottoCarrelloId}>
+                    <td className="d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-md-start text-center text-md-starts  gap-3">
                       <img
                         src={`https://localhost:7006${item.immagineFile}`}
                         alt={item.nomeProdotto}

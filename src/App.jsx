@@ -1,5 +1,10 @@
 import { Routes, Route, BrowserRouter } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { setCredentials } from "./store/authSlice";
+
 import "./App.css";
+
 import Home from "./components/Home";
 import NavBar from "./components/NavBar";
 import Prodotti from "./components/Prodotti";
@@ -14,6 +19,15 @@ import Profilo from "./components/Profilo";
 import RegisterAdmin from "./components/RegisterAdmin";
 
 function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const storedUserData = localStorage.getItem("userData");
+    if (storedUserData) {
+      dispatch(setCredentials(JSON.parse(storedUserData)));
+    }
+  }, [dispatch]);
+
   return (
     <div className="root">
       <BrowserRouter>

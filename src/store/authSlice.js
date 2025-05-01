@@ -15,17 +15,14 @@ const authSlice = createSlice({
       state.token = action.payload.token;
       state.user = action.payload.user;
     },
-    logout: (state) => {
+    logoutUser: (state) => {
       state.token = null;
       state.user = null;
-      state.profileIcon = icon1; // resetta icona al logout
-    },
-    setProfileIcon: (state, action) => {
-      state.profileIcon = action.payload;
+      state.profileIcon = icon1;
     },
   },
 });
 
-export const { setCredentials, logout, setProfileIcon } = authSlice.actions;
+export const { setCredentials, logoutUser } = authSlice.actions;
 
 export default authSlice.reducer;

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Modal, Button, Spinner, Alert, ListGroup } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { setCart } from "../store/cartSlice";
+
 import fruitIcon from "../assets/icons/frutta.png";
 import allCategoriesIcon from "../assets/icons/all-categories.png";
 import defaultIcon from "../assets/icons/default.png";
@@ -14,7 +15,9 @@ import biscuitIcon from "../assets/icons/biscuit.png";
 import pastaIcon from "../assets/icons/pasta.png";
 import eggIcon from "../assets/icons/egg.png";
 import canIcon from "../assets/icons/dispensa.png";
+
 import notFound from "../assets/img/notFound.png";
+import { Link } from "react-router-dom";
 
 const Prodotti = () => {
   const dispatch = useDispatch();
@@ -32,7 +35,8 @@ const Prodotti = () => {
   const [quantita, setQuantita] = useState(1);
   const [categoriaSelezionata, setCategoriaSelezionata] = useState(null);
   const [showMessaggioModal, setShowMessaggioModal] = useState(false);
-  const [messaggioContenuto, setMessaggioContenuto] = useState("");
+  const [messaggioAggiunta, setMessaggioAggiunta] = useState(false);
+  const [erroreAggiunta, seterroreContenuto] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingProdotto, setEditingProdotto] = useState(null);
 
@@ -259,9 +263,6 @@ const Prodotti = () => {
 
   const handleAddToCart = async (prodotto) => {
     if (!token) {
-      setMessaggioContenuto(
-        "❌ Devi essere loggato per aggiungere al carrello!"
-      );
       setShowMessaggioModal(true);
       return;
     }
@@ -272,10 +273,10 @@ const Prodotti = () => {
         prodottoId: prodotto.prodottoId,
         quantita: quantita,
       });
-      setMessaggioContenuto(`✅ ${prodotto.nomeProdotto} aggiunto al carrello`);
+      setMessaggioAggiunta(`✅ ${prodotto.nomeProdotto} aggiunto al carrello`);
       await aggiornaCarrelloRedux();
     } catch (err) {
-      setMessaggioContenuto("❌ " + err.message);
+      seterroreContenuto("❌ " + err.message);
     } finally {
       setShowMessaggioModal(true);
       setShowModal(false);
@@ -318,423 +319,512 @@ const Prodotti = () => {
   }
 
   return (
-    <div className="mx-md-1 mx-lg-2 mx-lg-3 mx-xxl-4">
-      <div className="py-3 row m-0">
-        {/*  */}
-        {/* Categorie SideBar */}
-        <div
-          className="d-none d-md-block col-md-3 col-xl-2  h-100 p-0 pe-3 ps-1 sidebar-sticky"
-          id="categoryList2"
-        >
-          <h5 className="text-light border-bottom border-4 pb-2">Categorie</h5>
+    <div>
+      <div className="text-white m-2 m-lg-3 m-xl-4 mb-0  d-none d-md-block">
+        {categoriaSelezionata ? (
           <div>
-            <p
-              className={` text-white m-0 py-1 gap-2 cursor-pointer  ${
-                categoriaSelezionata === null ? " fw-bold fst-italic" : ""
-              }`}
-              onClick={() => setCategoriaSelezionata(null)}
-            >
-              <img
-                src={allCategoriesIcon}
-                alt=""
-                width={45}
-                className="border border-2 border-light rounded-5 p-1 categoryIcon me-md-1 me-lg-2"
-              />{" "}
-              Tutte
-            </p>
-            {categorie.map((cat) => (
+            <Link to={"/"} className="text-white text-decoration-none">
+              Home /{" "}
+            </Link>
+            <Link to={"/prodotti"} className="text-white text-decoration-none">
+              Prodotti /{" "}
+            </Link>
+            <span className="speedMarket border-bottom fw-bold">
+              {categoriaSelezionata}
+            </span>{" "}
+          </div>
+        ) : (
+          <div>
+            <Link to={"/"} className="text-white text-decoration-none">
+              Home /{" "}
+            </Link>
+            <span className="speedMarket border-bottom fw-bold">Prodotti</span>
+          </div>
+        )}
+      </div>
+      <div className="mx-md-1 mx-lg-2 mx-lg-3 mx-xxl-4">
+        <div className="py-3 py-lg-0 row m-0">
+          {/*  */}
+          {/* Categorie SideBar */}
+          <div
+            className="d-none d-md-block col-md-3 col-xl-2  h-100 p-0 pe-3 ps-1 sidebar-sticky"
+            id="categoryList2"
+          >
+            <h5 className="text-light border-bottom border-4 pb-2">
+              Categorie
+            </h5>
+            <div>
               <p
-                key={cat.categoriaId}
-                className={` text-white m-0 py-2 d-flex align-items-center gap-2 cursor-pointer ${
-                  categoriaSelezionata === cat.nomeCategoria
-                    ? "fw-bold text-warning fst-italic"
+                className={` text-white m-0 py-1 gap-2 cursor-pointer  ${
+                  categoriaSelezionata === null
+                    ? " fw-bold fst-italic speedMarket"
                     : ""
                 }`}
-                onClick={() => setCategoriaSelezionata(cat.nomeCategoria)}
+                onClick={() => setCategoriaSelezionata(null)}
               >
                 <img
-                  src={getCategoriaImage(cat.nomeCategoria)}
-                  alt={cat.nomeCategoria}
+                  src={allCategoriesIcon}
+                  alt=""
                   width={45}
-                  className="border border-2 border-light rounded-5 categoryIcon p-1 me-md-1 me-lg-2"
-                />
-                {cat.nomeCategoria}
+                  className="border border-2 border-light rounded-5 p-1 categoryIcon me-md-1 me-lg-2"
+                />{" "}
+                Tutte
               </p>
-            ))}
-          </div>
-        </div>
-
-        <div className="col-md-9 col-xl-10 ">
-          <div className="row">
-            <div className="col-12 p-0">
-              <div className="mb-2 ps-3 ps-lg-2 text-light ">
-                <h2>I Nostri Prodotti</h2>
-                {userRole === "SuperAdmin" && (
-                  <Button
-                    className="nuovoProdottoBtn"
-                    variant="success"
-                    onClick={() => {
-                      setShowCreateModal(true);
-                      resetForm();
-                    }}
-                  >
-                    <i className="bi bi-plus-circle"></i> Nuovo Prodotto
-                  </Button>
-                )}
-              </div>
-
-              {messaggio && (
-                <div className="alert alert-success text-center">
-                  {messaggio}
-                </div>
-              )}
-
-              <div className="col-12 d-md-none mb-2 p-1 m-auto px-2 rounded-3 CategoriesContainerSM">
-                <div
-                  id="categoryCarousel"
-                  className="d-flex overflow-auto py-2"
-                  style={{ scrollSnapType: "x mandatory", gap: "10px" }}
+              {categorie.map((cat) => (
+                <p
+                  key={cat.categoriaId}
+                  className={` text-white m-0 py-2 d-flex align-items-center gap-2 cursor-pointer ${
+                    categoriaSelezionata === cat.nomeCategoria
+                      ? "fw-bold text-warning fst-italic speedMarket"
+                      : ""
+                  }`}
+                  onClick={() => setCategoriaSelezionata(cat.nomeCategoria)}
                 >
-                  {/* Tutte */}
-                  <div
-                    className={`bg-transparent text-light categoryItem rounded-3 ${
-                      categoriaSelezionata === null
-                        ? "fw-bold text-warning"
-                        : ""
-                    } d-flex flex-column align-items-center text-center px-2 pt-1`}
-                    style={{
-                      minWidth: "80px",
-                      scrollSnapAlign: "start",
-                      cursor: "pointer",
-                    }}
-                    onClick={() => setCategoriaSelezionata(null)}
-                  >
-                    <img
-                      src={allCategoriesIcon}
-                      alt="Tutte"
-                      width={36}
-                      className="border border-2 border-light p-1 rounded-5 mb-1 categoryIcon"
-                    />
-                    <small>Tutte</small>
-                  </div>
+                  <img
+                    src={getCategoriaImage(cat.nomeCategoria)}
+                    alt={cat.nomeCategoria}
+                    width={45}
+                    className="border border-2 border-light rounded-5 categoryIcon p-1 me-md-1 me-lg-2"
+                  />
+                  {cat.nomeCategoria}
+                </p>
+              ))}
+            </div>
+          </div>
 
-                  {/* Mappa categorie */}
-                  {categorie.map((cat) => (
+          <div className="col-md-9 col-xl-10 ">
+            <div className="row">
+              <div className="col-12 p-0 position-relative">
+                {/* Categorie Carousel */}
+                <div
+                  id="stickyCategories"
+                  className="col-12 d-md-none mb-2 w-100 ps-1 py-3 rounded-3 CategoriesContainerSM"
+                >
+                  <div>
                     <div
-                      key={cat.categoriaId}
-                      className={`bg-transparent text-light categoryItem rounded-3 ${
-                        categoriaSelezionata === cat.nomeCategoria
-                          ? "fw-bold text-danger"
-                          : ""
-                      } d-flex flex-column align-items-center text-center px-2 pt-1`}
-                      style={{
-                        minWidth: "80px",
-                        scrollSnapAlign: "start",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => setCategoriaSelezionata(cat.nomeCategoria)}
+                      id="categoryCarousel"
+                      className="d-flex pb-2 overflow-auto"
+                      // style={{ scrollSnapType: "x mandatory", gap: "10px" }}
                     >
-                      <img
-                        src={getCategoriaImage(cat.nomeCategoria)}
-                        alt={cat.nomeCategoria}
-                        width={36}
-                        className="border border-2 border-light p-1 rounded-5 mb-1 categoryIcon"
-                      />
-                      <small>{cat.nomeCategoria}</small>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Prodotti */}
-              <div className="row m-0 p-1 p-lg-0 ">
-                {prodottiFiltrati.map((prodotto) => (
-                  <div
-                    className="col-6 col-sm-4 col-xl-3 col-xxl-2 d-flex mb-1 p-2 p-lg-1"
-                    key={prodotto.prodottoId}
-                  >
-                    <div className="card w-100 d-flex flex-column productCard">
-                      <div className="w-100 bg-white p-1">
+                      {/* Tutte */}
+                      <div
+                        className={`bg-transparent text-light categoryItem rounded-3 ${
+                          categoriaSelezionata === null
+                            ? "fw-bold speedMarket"
+                            : ""
+                        } d-flex flex-column align-items-center text-center px-2 pt-1`}
+                        style={{
+                          minWidth: "80px",
+                          scrollSnapAlign: "start",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => setCategoriaSelezionata(null)}
+                      >
                         <img
-                          src={`https://localhost:7006${prodotto.immagineFile}`}
-                          className="card-img-top m-auto rounded-2 productImage"
-                          alt={prodotto.nomeProdotto}
+                          src={allCategoriesIcon}
+                          alt="Tutte"
+                          width={36}
+                          className="border border-2 border-light p-1 rounded-5 mb-1 categoryIcon"
                         />
+                        <small>Tutte</small>
                       </div>
 
-                      <div className="card-body d-flex flex-column justify-content-between border-top border-3">
-                        <h6 className="card-title">{prodotto.nomeProdotto}</h6>
-                        <p className="card-text text-muted">
-                          {prodotto.categoriaNome}
-                        </p>
-
-                        <div className="fw-bold">
-                          € {prodotto.prezzoProdotto.toFixed(2)}
+                      {/* Mappa categorie */}
+                      {categorie.map((cat) => (
+                        <div
+                          key={cat.categoriaId}
+                          className={`bg-transparent text-light categoryItem rounded-3 ${
+                            categoriaSelezionata === cat.nomeCategoria
+                              ? "fw-bold speedMarket"
+                              : ""
+                          } d-flex flex-column align-items-center text-center px-2 pt-1`}
+                          style={{
+                            minWidth: "80px",
+                            scrollSnapAlign: "start",
+                            cursor: "pointer",
+                          }}
+                          onClick={() =>
+                            setCategoriaSelezionata(cat.nomeCategoria)
+                          }
+                        >
+                          <img
+                            src={getCategoriaImage(cat.nomeCategoria)}
+                            alt={cat.nomeCategoria}
+                            width={36}
+                            className="border border-2 border-light p-1 rounded-5 mb-1 categoryIcon"
+                          />
+                          <small>{cat.nomeCategoria}</small>
                         </div>
-                        <div>
-                          <Button
-                            className="btn btn-success w-100 mt-2"
-                            onClick={() => handleShow(prodotto)}
-                          >
-                            <i className="bi bi-cart4 text-light"></i>
-                          </Button>
-                          {userRole === "SuperAdmin" && (
-                            <div className="mt-2 d-flex gap-1">
-                              <Button
-                                variant="warning"
-                                size="sm"
-                                className="w-50 text-light"
-                                onClick={() => handleEditProdotto(prodotto)}
-                              >
-                                <i className="bi bi-pencil-square"></i>
-                              </Button>
-                              <Button
-                                variant="danger"
-                                size="sm"
-                                className="w-50"
-                                onClick={() =>
-                                  handleDeleteProdotto(prodotto.prodottoId)
-                                }
-                              >
-                                <i className="bi bi-trash"></i>
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                      </div>
+                      ))}
                     </div>
                   </div>
-                ))}
+                </div>
+                <div id="prodottiSticky">
+                  <div className="mb-2 ps-3 ps-lg-2 text-light ">
+                    <h2>I Nostri Prodotti</h2>
 
-                {prodottiFiltrati.length === 0 && (
-                  <div className="text-center text-light d-flex justify-content-center align-items-center mt-4">
-                    <img src={notFound} alt="notFound" />
-                    <p className="m-0 ms-3"> Nessun prodotto trovato.</p>
+                    {userRole === "SuperAdmin" && (
+                      <Button
+                        className="nuovoProdottoBtn"
+                        variant="success"
+                        onClick={() => {
+                          setShowCreateModal(true);
+                          resetForm();
+                        }}
+                      >
+                        <i className="bi bi-plus-circle"></i> Nuovo Prodotto
+                      </Button>
+                    )}
                   </div>
-                )}
+
+                  {messaggio && (
+                    <div className="alert alert-success text-center">
+                      {messaggio}
+                    </div>
+                  )}
+
+                  {/* Prodotti */}
+                  <div className="row m-0 p-1 p-lg-0 ">
+                    {prodottiFiltrati.map((prodotto) => (
+                      <div
+                        className="col-6 col-sm-4 col-xl-3 col-xxl-2 d-flex mb-1 p-2 p-lg-1"
+                        key={prodotto.prodottoId}
+                      >
+                        <div
+                          className={`card w-100 d-flex flex-column productCard ${
+                            prodotto.stock === 0 ? "opacity-50" : ""
+                          }`}
+                        >
+                          <div className="w-100 bg-white p-1">
+                            <img
+                              src={`https://localhost:7006${prodotto.immagineFile}`}
+                              className="card-img-top m-auto rounded-2 productImage"
+                              alt={prodotto.nomeProdotto}
+                            />
+                          </div>
+
+                          <div className="card-body d-flex flex-column justify-content-between border-top border-3">
+                            <h6 className="card-title">
+                              {prodotto.nomeProdotto}
+                            </h6>
+                            <p className="card-text text-muted">
+                              {prodotto.categoriaNome}
+                            </p>
+
+                            <div className="fw-bold">
+                              € {prodotto.prezzoProdotto.toFixed(2)}
+                            </div>
+                            <div>
+                              {prodotto.stock === 0 && (
+                                <p className="text-danger">Esaurito!</p>
+                              )}
+                            </div>
+                            <div>
+                              <Button
+                                className="btn btn-success w-100 mt-2"
+                                onClick={() => handleShow(prodotto)}
+                              >
+                                <i className="bi bi-cart4 text-light"></i>
+                              </Button>
+                              {userRole === "SuperAdmin" && (
+                                <div className="mt-2 d-flex gap-1">
+                                  <Button
+                                    variant="warning"
+                                    size="sm"
+                                    className="w-50 text-light"
+                                    onClick={() => handleEditProdotto(prodotto)}
+                                  >
+                                    <i className="bi bi-pencil-square"></i>
+                                  </Button>
+                                  <Button
+                                    variant="danger"
+                                    size="sm"
+                                    className="w-50"
+                                    onClick={() =>
+                                      handleDeleteProdotto(prodotto.prodottoId)
+                                    }
+                                  >
+                                    <i className="bi bi-trash"></i>
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+
+                    {prodottiFiltrati.length === 0 && (
+                      <div className="text-center text-light d-flex justify-content-center align-items-center mt-4">
+                        <img src={notFound} alt="notFound" />
+                        <p className="m-0 ms-3"> Nessun prodotto trovato.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {selectedProdotto && (
+          {selectedProdotto && (
+            <Modal
+              show={showModal}
+              onHide={handleClose}
+              centered
+              contentClassName="custom-modal"
+            >
+              <div className="p-2 bg-modaleProdotto text-white">
+                {/* <Modal.Header>
+                <Modal.Title className="text-center w-100">
+                  <p className="">{selectedProdotto.nomeProdotto}</p>
+                </Modal.Title>
+              </Modal.Header> */}
+                <Modal.Body className="text-start text-light">
+                  <div className="text-center">
+                    <img
+                      src={`https://localhost:7006${selectedProdotto.immagineFile}`}
+                      alt={selectedProdotto.nomeProdotto}
+                      className="img-fluid mb-3 rounded"
+                      style={{
+                        maxHeight: "250px",
+                        objectFit: "cover",
+                      }}
+                    />
+                  </div>
+                  <p className="text-center mb-3 fs-5">
+                    <strong>{selectedProdotto.nomeProdotto}</strong>
+                    <hr className="border-white border-3" />
+                  </p>
+
+                  <p>
+                    <strong className="speedMarket">Categoria :</strong>{" "}
+                    {selectedProdotto.categoriaNome}
+                  </p>
+                  <p>
+                    <strong className="speedMarket">Prezzo :</strong> €{" "}
+                    {selectedProdotto.prezzoProdotto.toFixed(2)}
+                  </p>
+                  <p>
+                    <strong className="speedMarket">Disponibilità :</strong>{" "}
+                    {selectedProdotto.stock} pezzi
+                  </p>
+                  <p>
+                    <strong className="speedMarket">Descrizione :</strong>{" "}
+                    {selectedProdotto.descrizioneProdotto}
+                  </p>
+                </Modal.Body>
+                <Modal.Footer className="d-flex flex-column align-items-stretch gap-2">
+                  <div className="d-flex align-items-center gap-2 w-100">
+                    <label className="form-label m-0 text-light fw-bold speedMarket">
+                      Quantità:
+                    </label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      style={{ maxWidth: "80px" }}
+                      min={1}
+                      max={selectedProdotto?.stock || 1}
+                      value={quantita}
+                      onChange={(e) => setQuantita(Number(e.target.value))}
+                    />
+                    <div className="m-0">
+                      {selectedProdotto.stock > 0 ? (
+                        <p className="m-0 speedMarket fw-bold">
+                          Pezzi:{" "}
+                          <span className="text-light fw-normal">
+                            {selectedProdotto.stock}
+                          </span>
+                        </p>
+                      ) : (
+                        <spans>Esaurito</spans>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="d-flex justify-content-between w-100">
+                    <Button
+                      className="nuovoProdottoBtn"
+                      variant="secondary"
+                      onClick={handleClose}
+                    >
+                      Chiudi
+                    </Button>
+                    <Button
+                      className="nuovoProdottoBtn"
+                      variant="success"
+                      onClick={() => handleAddToCart(selectedProdotto)}
+                      disabled={!token || selectedProdotto.stock === 0}
+                    >
+                      <i className="bi bi-cart-plus "></i> Aggiungi
+                    </Button>
+                  </div>
+
+                  {!token && (
+                    <p className="text-danger text-end mt-2 mb-0 pe-1">
+                      Effettua il login!
+                    </p>
+                  )}
+                </Modal.Footer>
+              </div>
+            </Modal>
+          )}
+
+          {/* CONFERMA AGGIUNTA CARRELLO */}
           <Modal
-            show={showModal}
-            onHide={handleClose}
+            show={showMessaggioModal}
+            onHide={() => setShowMessaggioModal(false)}
+            className=" bg-white bg-opacity-25 "
             centered
-            contentClassName="custom-modal"
           >
-            <Modal.Header closeButton>
-              <Modal.Title className="text-center w-100">
-                {selectedProdotto.nomeProdotto}
+            <Modal.Header closeButton className="bg-dark border-0">
+              <Modal.Title className="text-light m-auto pt-4">
+                {messaggioAggiunta && (
+                  <div className="d-flex justify-content-center align-items-baseline w-100 text-center">
+                    <i class="bi bi-cart-check fs-2 m-0 me-2 text-success "></i>
+                    <p className="text-center p-0 m-0">
+                      Prodotto aggiunto con successo
+                    </p>
+                  </div>
+                )}
               </Modal.Title>
             </Modal.Header>
-            <Modal.Body className="text-start">
-              <div className="text-center">
-                <img
-                  src={`https://localhost:7006${selectedProdotto.immagineFile}`}
-                  alt={selectedProdotto.nomeProdotto}
-                  className="img-fluid mb-3 rounded"
-                  style={{
-                    maxHeight: "250px",
-                    objectFit: "cover",
-                  }}
-                />
+            {/* <Modal.Body className="text-center bg-dark text-light">
+            {/* {messaggioContenuto} 
+            {messaggioAggiunta && (
+              <div className="d-flex justify-content-center align-items-center">
+                <i class="bi bi-cart-check fs-2 m-0 me-2 text-success "></i>
+                <p className="text-center m-0">Prodotto aggiunto</p>
               </div>
-
-              <p>
-                <strong>Categoria:</strong> {selectedProdotto.categoriaNome}
-              </p>
-              <p>
-                <strong>Prezzo:</strong> €{" "}
-                {selectedProdotto.prezzoProdotto.toFixed(2)}
-              </p>
-              <p>
-                <strong>Disponibilità:</strong> {selectedProdotto.stock} pezzi
-              </p>
-              <p>
-                <strong>Descrizione:</strong>{" "}
-                {selectedProdotto.descrizioneProdotto}
-              </p>
-            </Modal.Body>
-            <Modal.Footer className="d-flex flex-column align-items-stretch gap-2">
-              <div className="d-flex align-items-center gap-2 w-100">
-                <label className="form-label m-0">Quantità:</label>
-                <input
-                  type="number"
-                  className="form-control"
-                  style={{ maxWidth: "80px" }}
-                  min={1}
-                  max={selectedProdotto?.stock || 1}
-                  value={quantita}
-                  onChange={(e) => setQuantita(Number(e.target.value))}
-                />
-                <span className="text-muted">
-                  Disponibili: {selectedProdotto?.stock}
-                </span>
-              </div>
-
-              <div className="d-flex justify-content-between w-100">
-                <Button variant="secondary" onClick={handleClose}>
-                  Chiudi
-                </Button>
-                <Button
-                  variant="success"
-                  onClick={() => handleAddToCart(selectedProdotto)}
-                  disabled={!token || selectedProdotto.stock === 0}
-                >
-                  <i className="bi bi-cart-plus"></i> Aggiungi
-                </Button>
-              </div>
-
-              {!token && (
-                <p className="text-danger text-end mt-2 mb-0 pe-1">
-                  Effettua il login!
-                </p>
-              )}
+            )}
+            {erroreAggiunta}
+          </Modal.Body> */}
+            <Modal.Footer className="bg-dark border-0">
+              <Button
+                variant="danger"
+                onClick={() => setShowMessaggioModal(false)}
+              >
+                Chiudi
+              </Button>
             </Modal.Footer>
           </Modal>
-        )}
 
-        {/* CONFERMA AGGIUNTA CARRELLO */}
-        <Modal
-          show={showMessaggioModal}
-          onHide={() => setShowMessaggioModal(false)}
-          className=" bg-white bg-opacity-25 "
-          centered
-        >
-          <Modal.Header closeButton className="bg-dark border-0">
-            <Modal.Title className="text-light">Messaggio</Modal.Title>
-          </Modal.Header>
-          <Modal.Body className="text-center bg-dark text-light">
-            {messaggioContenuto}
-          </Modal.Body>
-          <Modal.Footer className="bg-dark border-0">
-            <Button
-              variant="danger"
-              onClick={() => setShowMessaggioModal(false)}
-            >
-              Chiudi
-            </Button>
-          </Modal.Footer>
-        </Modal>
+          {/* MODIFICA / CREA PRODOTTO */}
+          <Modal
+            show={showCreateModal}
+            onHide={() => {
+              setShowCreateModal(false);
+              setEditingProdotto(null);
+            }}
+            centered
+          >
+            <Modal.Header closeButton>
+              <Modal.Title>
+                {editingProdotto ? "Modifica Prodotto" : "Crea Nuovo Prodotto"}
+              </Modal.Title>
+            </Modal.Header>
 
-        {/* MODIFICA / CREA PRODOTTO */}
-        <Modal
-          show={showCreateModal}
-          onHide={() => {
-            setShowCreateModal(false);
-            setEditingProdotto(null);
-          }}
-          centered
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>
-              {editingProdotto ? "Modifica Prodotto" : "Crea Nuovo Prodotto"}
-            </Modal.Title>
-          </Modal.Header>
-
-          <Modal.Body>
-            <form
-              onSubmit={
-                editingProdotto ? handleModificaProdotto : handleCreaProdotto
-              }
-            >
-              <div className="mb-3">
-                <label className="form-label">Nome prodotto</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={nomeProdotto}
-                  onChange={(e) => setNomeProdotto(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="mb-3">
-                <label className="form-label">Prezzo (€)</label>
-                <input
-                  type="number"
-                  className="form-control"
-                  value={prezzoProdotto}
-                  onChange={(e) => setPrezzoProdotto(e.target.value)}
-                  min={0}
-                  step="0.01"
-                  required
-                />
-              </div>
-
-              <div className="mb-3">
-                <label className="form-label">Stock disponibile</label>
-                <input
-                  type="number"
-                  className="form-control"
-                  value={stock}
-                  onChange={(e) => setStock(e.target.value)}
-                  min={0}
-                  required
-                />
-              </div>
-
-              <div className="mb-3">
-                <label className="form-label">Categoria</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={nomeCategoria}
-                  onChange={(e) => setNomeCategoria(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="mb-3">
-                <label className="form-label">Descrizione</label>
-                <textarea
-                  className="form-control"
-                  rows={3}
-                  value={descrizioneProdotto}
-                  onChange={(e) => setDescrizioneProdotto(e.target.value)}
-                  required
-                ></textarea>
-              </div>
-
-              {!editingProdotto && (
+            <Modal.Body>
+              <form
+                onSubmit={
+                  editingProdotto ? handleModificaProdotto : handleCreaProdotto
+                }
+              >
                 <div className="mb-3">
-                  <label className="form-label">Immagine</label>
+                  <label className="form-label">Nome prodotto</label>
                   <input
-                    type="file"
+                    type="text"
                     className="form-control"
-                    accept="image/*"
-                    onChange={(e) => setImmagineFile(e.target.files[0])}
+                    value={nomeProdotto}
+                    onChange={(e) => setNomeProdotto(e.target.value)}
                     required
                   />
                 </div>
-              )}
 
-              <div className="d-flex justify-content-end gap-2">
-                <Button
-                  variant="secondary"
-                  onClick={() => {
-                    setShowCreateModal(false);
-                    setEditingProdotto(null);
-                  }}
-                >
-                  Annulla
-                </Button>
-                <Button type="submit" variant="success">
-                  {editingProdotto ? "Salva Modifiche" : "Crea"}
-                </Button>
-              </div>
-            </form>
-          </Modal.Body>
-        </Modal>
+                <div className="mb-3">
+                  <label className="form-label">Prezzo (€)</label>
+                  <input
+                    type="number"
+                    className="form-control"
+                    value={prezzoProdotto}
+                    onChange={(e) => setPrezzoProdotto(e.target.value)}
+                    min={0}
+                    step="0.01"
+                    required
+                  />
+                </div>
 
-        <button
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="scroll-to-top-btn"
-        >
-          <i className="bi bi-arrow-up"></i>
-        </button>
+                <div className="mb-3">
+                  <label className="form-label">Stock disponibile</label>
+                  <input
+                    type="number"
+                    className="form-control"
+                    value={stock}
+                    onChange={(e) => setStock(e.target.value)}
+                    min={0}
+                    required
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">Categoria</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={nomeCategoria}
+                    onChange={(e) => setNomeCategoria(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">Descrizione</label>
+                  <textarea
+                    className="form-control"
+                    rows={3}
+                    value={descrizioneProdotto}
+                    onChange={(e) => setDescrizioneProdotto(e.target.value)}
+                    required
+                  ></textarea>
+                </div>
+
+                {!editingProdotto && (
+                  <div className="mb-3">
+                    <label className="form-label">Immagine</label>
+                    <input
+                      type="file"
+                      className="form-control"
+                      accept="image/*"
+                      onChange={(e) => setImmagineFile(e.target.files[0])}
+                      required
+                    />
+                  </div>
+                )}
+
+                <div className="d-flex justify-content-end gap-2">
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      setShowCreateModal(false);
+                      setEditingProdotto(null);
+                    }}
+                  >
+                    Annulla
+                  </Button>
+                  <Button type="submit" variant="success">
+                    {editingProdotto ? "Salva Modifiche" : "Crea"}
+                  </Button>
+                </div>
+              </form>
+            </Modal.Body>
+          </Modal>
+
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="scroll-to-top-btn"
+          >
+            <i className="bi bi-arrow-up"></i>
+          </button>
+        </div>
       </div>
     </div>
   );

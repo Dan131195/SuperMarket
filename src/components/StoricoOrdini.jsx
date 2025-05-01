@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import {
   Spinner,
@@ -10,7 +11,7 @@ import {
 } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import emptyCart from "../assets/img/empty-cart.png";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 
 const StoricoOrdini = () => {
   const [ordini, setOrdini] = useState([]);
@@ -23,36 +24,37 @@ const StoricoOrdini = () => {
 
   const { user, token } = useSelector((state) => state.auth);
   const userId = user?.id;
-  const userRole = user?.role;
+  const userRole = user?.roles;
   console.log(userRole);
+
+  const fetchOrdini = async () => {
+    try {
+      const userId = user?.id;
+      const res = await fetch(
+        `https://localhost:7006/api/ordine/storico/${userId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (!res.ok) throw new Error("Errore nel recupero ordini");
+      const data = await res.json();
+      setOrdini(data);
+    } catch (err) {
+      console.error(err);
+      setErrore("Errore nel caricamento ordini");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     document.title = "SpeedMarket - I miei Ordini";
 
-    const fetchOrdini = async () => {
-      try {
-        const res = await fetch(
-          `https://localhost:7006/api/ordine/storico/${userId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-
-        if (!res.ok) throw new Error("Errore nel recupero ordini");
-        const data = await res.json();
-        setOrdini(data);
-      } catch (err) {
-        console.error(err);
-        setErrore("Errore nel caricamento ordini");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     if (userId) {
       fetchOrdini();
     }
-  }, [userId, token]);
+  }, [userId]);
 
   const getBadgeColor = (stato) => {
     switch (stato.toLowerCase()) {
@@ -105,7 +107,7 @@ const StoricoOrdini = () => {
       alert("✅ Stato modificato!");
       setModificaOrdineId(null);
       setNuovoStatoId("");
-      window.location.reload();
+      fetchOrdini();
     } catch (err) {
       console.error(err);
       alert("❌ Errore nel salvataggio stato");
@@ -137,21 +139,21 @@ const StoricoOrdini = () => {
   return (
     <div className="container py-4">
       <h2 className="text-light mb-4">I miei Ordini</h2>
-
+      {userRole === undefined && <Navigate to="*" replace />}
       {ordini.length === 0 ? (
         <div className="text-center mt-1">
           <div className="text-center d-flex flex-column flex-md-row justify-content-center align-items-center">
             <img src={emptyCart} alt="Ordini Vuoto" className="w-50 m-auto" />
             <h4 className="text-light fw-semibold emptyCart">
               Ops, non hai ancora effettuato ordini..
+              <Link
+                to="/prodotti"
+                className="btn btn-success m-auto mt-3 p-2 d-block w-50 fw-bold nuovoProdottoBtn"
+              >
+                Vai a Prodotti <i className="bi bi-arrow-right-circle"></i>
+              </Link>
             </h4>
           </div>
-          <Link
-            to="/prodotti"
-            className="btn btn-success p-2 d-block w-50 m-auto mt-1"
-          >
-            Vai a Prodotti
-          </Link>
         </div>
       ) : (
         <div className="row g-3">
@@ -185,7 +187,7 @@ const StoricoOrdini = () => {
                       >
                         <option value="">Seleziona stato...</option>
                         <option value="2">Pronto</option>
-                        <option value="3">Consegnato</option>
+                        <option value="3">Ritirato</option>
                         <option value="4">Annullato</option>
                       </select>
                       <div className="d-flex gap-1 justify-content-between align-items-center">
@@ -217,7 +219,7 @@ const StoricoOrdini = () => {
                         Dettagli
                       </Button>
 
-                      {userRole === "Admin" || userRole === "SuperAdmin" ? (
+                      {userRole == "Admin" || userRole == "SuperAdmin" ? (
                         <Button
                           variant="outline-warning fw-bold"
                           className="w-50"

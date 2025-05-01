@@ -1,7 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import logoImg from "../assets/img/logo3.png";
 import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../store/authSlice";
+import { logoutUser } from "../store/authSlice";
+import { setCart } from "../store/cartSlice";
+import { useEffect } from "react";
 
 const NavBar = () => {
   const dispatch = useDispatch();
@@ -25,9 +27,36 @@ const NavBar = () => {
     }
   }
 
+  useEffect(() => {
+    const fetchCart = async () => {
+      if (!token || !user?.id) return;
+
+      try {
+        const res = await fetch(
+          `https://localhost:7006/api/carrello/${user.id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        if (res.ok) {
+          const data = await res.json();
+          dispatch(setCart(data));
+        } else {
+          console.error("Errore caricamento carrello");
+        }
+      } catch (error) {
+        console.error("Errore fetch carrello:", error);
+      }
+    };
+
+    fetchCart();
+  }, [token, user?.id, dispatch]);
+
   const handleLogout = () => {
-    dispatch(logout());
+    localStorage.removeItem("userData");
     navigate("/login");
+
+    dispatch(logoutUser());
   };
 
   return (
@@ -52,7 +81,10 @@ const NavBar = () => {
         </button>
 
         {/* Menu */}
-        <div className="collapse navbar-collapse" id="navbarSupportedContent">
+        <div
+          className="collapse navbar-collapse mt-2 m-md-0"
+          id="navbarSupportedContent"
+        >
           <div className="d-flex justify-content-between align-items-baseline align-items-md-center w-100">
             <ul className="navbar-nav">
               <li className="nav-item d-inline linkNavBar">

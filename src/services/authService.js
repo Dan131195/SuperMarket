@@ -1,4 +1,6 @@
 import { setCredentials } from "../store/authSlice";
+import { clearCart } from "../store/cartSlice";
+import { logoutUser } from "../store/authSlice";
 
 export const login = (credentials) => async (dispatch) => {
   try {
@@ -17,17 +19,18 @@ export const login = (credentials) => async (dispatch) => {
     const name =
       payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"];
 
-    dispatch(
-      setCredentials({
-        token,
-        user: {
-          id: userId,
-          email,
-          roles,
-          name,
-        },
-      })
-    );
+    const userData = {
+      token,
+      user: {
+        id: userId,
+        email,
+        roles,
+        name,
+      },
+    };
+
+    dispatch(setCredentials(userData));
+    localStorage.setItem("userData", JSON.stringify(userData));
   } catch (error) {
     console.error("Errore login:", error);
     throw error;
@@ -42,18 +45,20 @@ export const register = async (formData) => {
       body: JSON.stringify(formData),
     });
 
-    console.log("Response status:", response.status);
+    const responseText = await response.clone().text();
 
-    const responseText = await response.clone().text(); // per debug
-    console.log("Raw response text:", responseText);
-
-    if (response.status !== 200) {
+    if (!response.ok) {
       throw new Error(responseText || "Errore nella registrazione");
     }
 
-    return JSON.parse(responseText); // invece di response.json()
+    return JSON.parse(responseText);
   } catch (error) {
     console.error("Errore durante la registrazione:", error);
     throw error;
   }
+};
+
+export const logout = () => async (dispatch) => {
+  dispatch(logoutUser());
+  dispatch(clearCart());
 };

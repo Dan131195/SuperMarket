@@ -97,6 +97,40 @@ footer {
   width: 2.5rem !important;
 }
 
+.homeContainerInside {
+  width: 95%;
+}
+
+@media screen and (min-width: 768px) {
+  .homeContainerInside {
+    width: 85%;
+  }
+}
+
+@media screen and (min-width: 992px) {
+  .homeContainerInside {
+    width: 80%;
+  }
+}
+
+@media screen and (min-width: 1200px) {
+  .homeContainerInside {
+    width: 75%;
+  }
+}
+
+@media screen and (min-width: 1400px) {
+  .homeContainerInside {
+    width: 70%;
+  }
+}
+
+@media screen and (min-width: 1600px) {
+  .homeContainerInside {
+    width: 50%;
+  }
+}
+
 .homeContainer,
 .login {
   background-image: url(../src/assets/img/supermarket.png);
@@ -166,6 +200,10 @@ footer {
   .productImage {
     max-height: 210px;
   }
+  #carrelloTableList {
+    max-height: 600px;
+    overflow-y: auto;
+  }
 }
 
 @media screen and (min-width: 1400px) {
@@ -174,35 +212,48 @@ footer {
   }
 }
 
-.categoryItem {
-  background-color: #324117fe;
+@media screen and (min-width: 1600px) {
+  .productImage {
+    max-height: 220px;
+  }
 }
 
 .categoryItem:hover {
   background-color: #567420fe !important;
 }
 
-.categoryItem:focus {
-  background-color: #de9228e1 !important;
-}
-
 #categoryList {
   max-height: 150px;
   overflow-y: auto;
 }
-
+/* 
 #carrelloTableList {
+  min-height: 100px;
   max-height: 400px;
   overflow-y: auto;
+} */
+
+#productCarouselHome,
+#categoryCarousel {
+  max-height: 120px;
+  overflow-x: auto;
 }
 
 #categoryList::-webkit-scrollbar,
 #categoryList2::-webkit-scrollbar,
 #categoryCarousel::-webkit-scrollbar,
-#carrelloTableList::-webkit-scrollbar {
+#carrelloTableList::-webkit-scrollbar,
+#productCarouselHome::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
   background-color: transparent;
   border-radius: 20px;
+}
+.custom-modal::-webkit-scrollbar {
+  background-color: #ffffff;
+  width: 6px;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
 }
 
 #carrelloTableList::-webkit-scrollbar {
@@ -211,17 +262,15 @@ footer {
 
 #categoryCarousel::-webkit-scrollbar-thumb,
 #categoryList2::-webkit-scrollbar-thumb,
-#carrelloTableList::-webkit-scrollbar-thumb {
+#carrelloTableList::-webkit-scrollbar-thumb,
+.custom-modal::-webkit-scrollbar-thumb,
+#productCarouselHome::-webkit-scrollbar-thumb {
   background-color: #c27a17c3;
   border-radius: 10px;
 }
 
 #carrelloTableList::-webkit-scrollbar-thumb {
   background-color: #e4890a;
-}
-
-.table-hoverr:hover {
-  background-color: #e4890ab9 !important;
 }
 
 .homeOpacity {
@@ -247,9 +296,8 @@ footer {
 }
 
 .emptyCart {
-  width: 75% !important;
   margin: 0 auto !important;
-  font-size: 1.9rem !important;
+  font-size: 1.5rem !important;
 }
 
 .errorImg {
@@ -258,20 +306,15 @@ footer {
 
 @media screen and (min-width: 768px) {
   .emptyCart {
-    width: 40% !important;
+    width: 90% !important;
     margin: 0 auto !important;
-    font-size: 2.5rem !important;
+    font-size: 2.3rem !important;
   }
 }
 
 @media screen and (min-width: 992px) {
   .card-img-top {
     height: 220px !important;
-  }
-  .emptyCart {
-    width: 40% !important;
-    margin: 0 auto !important;
-    font-size: 2.9rem !important;
   }
   .errorImg {
     width: 40% !important;
@@ -283,9 +326,9 @@ footer {
     height: 240px !important;
   }
   .emptyCart {
-    width: 40% !important;
+    width: 80% !important;
     margin: 0 auto !important;
-    font-size: 3.5rem !important;
+    font-size: 2.5rem !important;
   }
 }
 
@@ -313,7 +356,7 @@ footer {
 }
 
 .speedMarket {
-  color: #cc7a08;
+  color: #cc7a08 !important;
 }
 
 .profileLink {
@@ -321,7 +364,8 @@ footer {
   color: #4c651c !important;
 }
 
-.profileLinkHover:hover {
+.profileLinkHover:hover,
+.modificaLink:hover {
   background-color: #263608;
   color: #cc7a08 !important;
 }
@@ -359,10 +403,11 @@ footer {
 }
 
 .custom-modal {
-  max-width: 380px;
+  max-width: 320px;
+  max-height: 80vh;
   margin: auto;
   border-radius: 10px;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 .nuovoProdottoBtn {
@@ -370,7 +415,7 @@ footer {
 }
 
 .nuovoProdottoBtn:hover {
-  border: 2px solid #e4890a;
+  border: 3px solid #e4890a;
 }
 
 a:hover,
@@ -378,9 +423,9 @@ button:hover {
   transform: scale(1.02);
 }
 
-.categoryItem:hover {
+/* .categoryItem:hover {
   background-color: #e4890aa7 !important;
-}
+} */
 
 .scroll-to-top-btn {
   position: fixed;
@@ -403,4 +448,19 @@ button:hover {
 .scroll-to-top-btn:hover {
   background-color: #b7771fc4;
   transform: scale(1);
+}
+
+#stickyCategories {
+  position: sticky !important;
+  top: 50px !important;
+  z-index: 1019 !important;
+  background: #4c651c;
+}
+
+.btn-close {
+  display: none !important;
+}
+.bg-modaleProdotto {
+  background-color: #3c4d19 !important;
+  border: 3px solid #cc7a08;
 }

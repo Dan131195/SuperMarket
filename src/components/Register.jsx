@@ -1,8 +1,10 @@
 // src/pages/Register.jsx
 import { useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Button, Form, Alert, Container, Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { login } from "../services/authService";
+
 import logoImg from "../assets/img/logo3.png";
 
 const Register = () => {
@@ -15,9 +17,10 @@ const Register = () => {
     ruolo: "User",
     codiceFiscale: "",
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [messaggio, setMessaggio] = useState(null);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   // Decodifica token per vedere se l'utente è SuperAdmin
   let userRole = null;
@@ -40,8 +43,6 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setMessaggio(null);
 
     try {
       const res = await fetch("https://localhost:7006/api/account/register", {
@@ -72,9 +73,11 @@ const Register = () => {
         codiceFiscale: "",
       });
 
-      setTimeout(() => {
-        navigate("/");
-      }, 2000);
+      await dispatch(
+        login({ email: formData.email, password: formData.password })
+      );
+
+      navigate("/");
     } catch (err) {
       console.error(err);
       setMessaggio(`❌ ${err.message}`);
