@@ -56,9 +56,12 @@ const StoricoOrdiniLista = () => {
   useEffect(() => {
     const fetchOrdini = async () => {
       try {
-        const res = await fetch(`https://localhost:7006/api/ordine/storico`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await fetch(
+          `https://supermarketstoreapi.azurewebsites.net/api/ordine/storico`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
         if (!res.ok) throw new Error("Errore recupero ordini");
 
@@ -86,7 +89,7 @@ const StoricoOrdiniLista = () => {
 
     try {
       const res = await fetch(
-        `https://localhost:7006/api/ordine/${ordineId}/stato`,
+        `https://supermarketstoreapi.azurewebsites.net/api/ordine/${ordineId}/stato`,
         {
           method: "PATCH",
           headers: {
@@ -101,7 +104,7 @@ const StoricoOrdiniLista = () => {
 
       alert("✅ Stato aggiornato");
       const updatedRes = await fetch(
-        `https://localhost:7006/api/ordine/storico`,
+        `https://supermarketstoreapi.azurewebsites.net/api/ordine/storico`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -290,7 +293,7 @@ const StoricoOrdiniLista = () => {
                       className="d-flex align-items-center"
                     >
                       <Image
-                        src={`https://localhost:7006${prodotto.immagineProdotto}`}
+                        src={`https://supermarketstoreapi.azurewebsites.net${prodotto.immagineProdotto}`}
                         alt={prodotto.nomeProdotto}
                         rounded
                         width={60}

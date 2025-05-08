@@ -54,7 +54,7 @@ const RegisterAdmin = () => {
 
     try {
       const res = await fetch(
-        "https://localhost:7006/api/account/register/admin",
+        "https://supermarketstoreapi.azurewebsites.net/api/account/register/admin",
         {
           method: "POST",
           headers: {

@@ -64,14 +64,17 @@ const Checkout = () => {
     try {
       const oraRitiroCompleto = selectedPickupTime.toISOString();
 
-      const res = await fetch("https://localhost:7006/api/ordine/conferma", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ oraRitiro: oraRitiroCompleto }),
-      });
+      const res = await fetch(
+        "https://supermarketstoreapi.azurewebsites.net/api/ordine/conferma",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ oraRitiro: oraRitiroCompleto }),
+        }
+      );
 
       if (!res.ok) throw new Error("Errore durante la conferma dell'ordine");
 

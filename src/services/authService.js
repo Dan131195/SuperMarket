@@ -4,11 +4,14 @@ import { logoutUser } from "../store/authSlice";
 
 export const login = (credentials) => async (dispatch) => {
   try {
-    const response = await fetch("https://localhost:7006/api/account/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(credentials),
-    });
+    const response = await fetch(
+      "https://supermarketstoreapi.azurewebsites.net/api/account/login",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(credentials),
+      }
+    );
 
     if (!response.ok) throw new Error("Credenziali non valide");
 

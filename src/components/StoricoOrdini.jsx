@@ -36,7 +36,7 @@ const StoricoOrdini = () => {
   const fetchOrdini = async () => {
     try {
       const res = await fetch(
-        `https://localhost:7006/api/ordine/storico/${userId}`,
+        `https://supermarketstoreapi.azurewebsites.net/api/ordine/storico/${userId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -202,7 +202,7 @@ const StoricoOrdini = () => {
                   >
                     <div className="d-flex align-items-center gap-2">
                       <img
-                        src={`https://localhost:7006${prod.immagineProdotto}`}
+                        src={`https://supermarketstoreapi.azurewebsites.net${prod.immagineProdotto}`}
                         alt={prod.nomeProdotto}
                         style={{
                           maxWidth: "90vh",

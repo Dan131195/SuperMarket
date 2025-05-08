@@ -54,9 +54,12 @@ const Profilo = () => {
   const fetchCliente = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`https://localhost:7006/api/cliente/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `https://supermarketstoreapi.azurewebsites.net/api/cliente/${userId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       if (!res.ok) throw new Error("Errore nel recupero dati profilo");
 
       const data = await res.json();
@@ -95,7 +98,7 @@ const Profilo = () => {
       }
 
       const res = await fetch(
-        `https://localhost:7006/api/cliente/${cliente.clienteId}/modifica`,
+        `https://supermarketstoreapi.azurewebsites.net/api/cliente/${cliente.clienteId}/modifica`,
         {
           method: "PUT",
           headers: {
@@ -155,7 +158,7 @@ const Profilo = () => {
                   src={
                     cliente.immagineProfilo == null
                       ? icon1
-                      : `https://localhost:7006/${cliente.immagineProfilo}`
+                      : `https://supermarketstoreapi.azurewebsites.net/${cliente.immagineProfilo}`
                   }
                   alt="Icona Profilo"
                   width={80}

@@ -31,13 +31,16 @@ const Register = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch("https://localhost:7006/api/account/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const res = await fetch(
+        "https://supermarketstoreapi.azurewebsites.net/api/account/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
 
       if (!res.ok) {
         const errorData = await res.json();

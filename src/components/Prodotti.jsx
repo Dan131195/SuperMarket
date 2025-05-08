@@ -74,7 +74,9 @@ const Prodotti = () => {
 
   const fetchCategorie = async () => {
     try {
-      const res = await fetch("https://localhost:7006/api/Categoria");
+      const res = await fetch(
+        "https://supermarketstoreapi.azurewebsites.net/api/Categoria"
+      );
       if (!res.ok) throw new Error("Errore nel recupero delle categorie");
       const data = await res.json();
       setCategorie(data);
@@ -88,7 +90,9 @@ const Prodotti = () => {
 
   const fetchProdotti = async () => {
     try {
-      const res = await fetch("https://localhost:7006/api/Prodotto");
+      const res = await fetch(
+        "https://supermarketstoreapi.azurewebsites.net/api/Prodotto"
+      );
       if (!res.ok) throw new Error("Errore nel recupero dei prodotti");
       const data = await res.json();
       setProdotti(data);
@@ -129,13 +133,16 @@ const Prodotti = () => {
       formData.append("DescrizioneProdotto", descrizioneProdotto);
       formData.append("ImmagineFile", immagineFile);
 
-      const res = await fetch("https://localhost:7006/api/prodotto", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
+      const res = await fetch(
+        "https://supermarketstoreapi.azurewebsites.net/api/prodotto",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
 
       if (!res.ok) throw new Error("Errore durante la creazione del prodotto");
 
@@ -161,7 +168,7 @@ const Prodotti = () => {
       };
 
       const res = await fetch(
-        `https://localhost:7006/api/prodotto/${editingProdotto.prodottoId}`,
+        `https://supermarketstoreapi.azurewebsites.net/api/prodotto/${editingProdotto.prodottoId}`,
         {
           method: "PUT",
           headers: {
@@ -198,7 +205,7 @@ const Prodotti = () => {
     if (window.confirm("Sei sicuro di voler eliminare questo prodotto?")) {
       try {
         const res = await fetch(
-          `https://localhost:7006/api/prodotto/${prodottoId}`,
+          `https://supermarketstoreapi.azurewebsites.net/api/prodotto/${prodottoId}`,
           {
             method: "DELETE",
             headers: { Authorization: `Bearer ${token}` },
@@ -253,14 +260,17 @@ const Prodotti = () => {
   };
 
   const aggiungiAlCarrello = async (dto) => {
-    const res = await fetch("https://localhost:7006/api/carrello", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(dto),
-    });
+    const res = await fetch(
+      "https://supermarketstoreapi.azurewebsites.net/api/carrello",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(dto),
+      }
+    );
 
     if (!res.ok) {
       const msg = await res.text();
@@ -269,11 +279,14 @@ const Prodotti = () => {
   };
 
   const aggiornaCarrelloRedux = async () => {
-    const res = await fetch(`https://localhost:7006/api/carrello/${userId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const res = await fetch(
+      `https://supermarketstoreapi.azurewebsites.net/api/carrello/${userId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     if (res.ok) {
       const data = await res.json();
       dispatch(setCart(data));
@@ -512,7 +525,7 @@ const Prodotti = () => {
                               }`}
                             >
                               <img
-                                src={`https://localhost:7006${prodotto.immagineFile}`}
+                                src={`https://supermarketstoreapi.azurewebsites.net${prodotto.immagineFile}`}
                                 className="card-img-top m-auto productImage "
                                 alt={prodotto.nomeProdotto}
                               />
@@ -593,7 +606,7 @@ const Prodotti = () => {
                 <Modal.Body className="text-start text-light">
                   <div className="text-center">
                     <img
-                      src={`https://localhost:7006${selectedProdotto.immagineFile}`}
+                      src={`https://supermarketstoreapi.azurewebsites.net${selectedProdotto.immagineFile}`}
                       alt={selectedProdotto.nomeProdotto}
                       className="img-fluid mb-3 rounded"
                       style={{

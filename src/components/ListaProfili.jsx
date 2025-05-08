@@ -43,9 +43,12 @@ const ListaProfili = () => {
       navigate("/login");
     }
     try {
-      const res = await fetch(`https://localhost:7006/api/cliente`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `https://supermarketstoreapi.azurewebsites.net/api/cliente`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       console.log(res);
       if (!res.ok) throw new Error("Errore nel recupero clienti");
       const data = await res.json();
@@ -62,9 +65,12 @@ const ListaProfili = () => {
   const handleViewCliente = async (userId) => {
     setErrore(false);
     try {
-      const res = await fetch(`https://localhost:7006/api/cliente/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `https://supermarketstoreapi.azurewebsites.net/api/cliente/${userId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       if (!res.ok) throw new Error("Errore nel recupero dettagli cliente");
 
       const data = await res.json();

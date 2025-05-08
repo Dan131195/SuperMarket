@@ -34,7 +34,7 @@ const NavBar = () => {
 
       try {
         const res = await fetch(
-          `https://localhost:7006/api/carrello/${user.id}`,
+          `https://supermarketstoreapi.azurewebsites.net/api/carrello/${user.id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }

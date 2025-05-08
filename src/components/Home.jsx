@@ -33,7 +33,9 @@ const Home = () => {
 
   const fetchProdotti = async () => {
     try {
-      const res = await fetch("https://localhost:7006/api/Prodotto");
+      const res = await fetch(
+        "https://supermarketstoreapi.azurewebsites.net/api/Prodotto"
+      );
       if (!res.ok) throw new Error("Errore nel recupero dei prodotti");
       const data = await res.json();
       setProdotti(data);
@@ -47,7 +49,9 @@ const Home = () => {
 
   const fetchCategorie = async () => {
     try {
-      const res = await fetch("https://localhost:7006/api/Categoria");
+      const res = await fetch(
+        "https://supermarketstoreapi.azurewebsites.net/api/Categoria"
+      );
       if (!res.ok) throw new Error("Errore nel recupero delle categorie");
       const data = await res.json();
       setCategorie(data);
@@ -198,7 +202,7 @@ const Home = () => {
                         className="d-flex flex-column justify-content-center px-2"
                       >
                         <img
-                          src={`https://localhost:7006${p.immagineFile}`}
+                          src={`https://supermarketstoreapi.azurewebsites.net${p.immagineFile}`}
                           alt={p.nomeProdotto}
                           className="rounded-4 nuovoProdottoBtn"
                           width={110}

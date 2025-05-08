@@ -22,7 +22,7 @@ const Carrello = () => {
   const token = useSelector((state) => state.auth.token);
   const userId = useSelector((state) => state.auth.user?.id);
 
-  const baseUrl = "https://localhost:7006/api/carrello";
+  const baseUrl = "https://supermarketstoreapi.azurewebsites.net/api/carrello";
 
   const caricaCarrello = async () => {
     setLoading(true);
@@ -203,7 +203,7 @@ const Carrello = () => {
                   <tr key={item.prodottoCarrelloId}>
                     <td className="d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-md-start text-center text-md-starts  gap-3">
                       <img
-                        src={`https://localhost:7006${item.immagineFile}`}
+                        src={`https://supermarketstoreapi.azurewebsites.net${item.immagineFile}`}
                         alt={item.nomeProdotto}
                         className="rounded"
                         style={{
