@@ -276,8 +276,7 @@ const Carrello = () => {
               </h5>
 
               <p className="ms-lg-2 ms-xl-3 ms-xxl-5">
-                Richiedi un codice card EasyGift comodamente da casa tua, clicca
-                qui
+                Richiedi un codice card EasyGift comodamente da casa tua.
               </p>
             </div>
             <div className="d-flex justify-content-between align-items-center flex-lg-column justify-content-lg-around mt-4 gap-2 text-end">
