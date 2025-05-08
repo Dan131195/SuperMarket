@@ -22,6 +22,7 @@ const NavBar = () => {
       payload = JSON.parse(atob(token.split(".")[1]));
       userRole =
         payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+      console.log(userRole);
     } catch (error) {
       console.error("Token non valido", error);
     }
@@ -134,34 +135,60 @@ const NavBar = () => {
                     </span>
                   </button>
                   <ul className="dropdown-menu dropdown-menu-end profileLink border-white">
-                    <li className="profileLink">
-                      <Link
-                        className="dropdown-item profileLink profileLinkHover"
-                        to="/profilo"
-                      >
-                        <i className="bi bi-person-lines-fill"></i> Il mio
-                        profilo
-                      </Link>
-                    </li>
-                    <li className="profileLink">
-                      <Link
-                        className="dropdown-item profileLink profileLinkHover"
-                        to="/storico-ordini"
-                      >
-                        <i className="bi bi-bag-check-fill"></i> I miei ordini
-                      </Link>
-                    </li>
-                    {userRole === "SuperAdmin" && (
-                      <li className="profileLink">
+                    {userRole === "Admin" || userRole === "SuperAdmin" ? (
+                      <>
+                        {userRole === "SuperAdmin" && (
+                          <li className="profileLink">
+                            <Link
+                              className="dropdown-item profileLink profileLinkHover"
+                              to="/registra-admin"
+                            >
+                              <i className="bi bi-person-fill-add"></i> Registra
+                              Admin
+                            </Link>
+                          </li>
+                        )}
+
+                        <li className="profileLink">
+                          <Link
+                            className="dropdown-item profileLink profileLinkHover"
+                            to="/lista-profili"
+                          >
+                            <i className="bi bi-person-lines-fill"></i> Lista
+                            clienti
+                          </Link>
+                        </li>
                         <Link
                           className="dropdown-item profileLink profileLinkHover"
-                          to="/registra-admin"
+                          to="/storico-ordini-lista"
                         >
-                          <i className="bi bi-person-fill-add"></i> Registra
-                          Admin
+                          <i className="bi bi-bag-check-fill"></i> Ordini
                         </Link>
-                      </li>
+                      </>
+                    ) : (
+                      <>
+                        <li className="profileLink">
+                          <Link
+                            className="dropdown-item profileLink profileLinkHover"
+                            to="/profilo"
+                          >
+                            <i className="bi bi-person-lines-fill"></i> Il mio
+                            profilo
+                          </Link>
+                        </li>
+
+                        <li className="profileLink">
+                          <Link
+                            className="dropdown-item profileLink profileLinkHover"
+                            to="/storico-ordini"
+                          >
+                            <i className="bi bi-bag-check-fill"></i> I miei
+                            ordini
+                          </Link>
+                        </li>
+                      </>
                     )}
+
                     <li className="profileLink border-top border-1">
                       <button
                         className="dropdown-item text-danger fw-bold profileLinkHover"

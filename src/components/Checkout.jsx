@@ -3,17 +3,21 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
+import cvvIcon from "../assets/icons/cvv.png";
+
 const Checkout = () => {
   const navigate = useNavigate();
   const token = useSelector((state) => state.auth.token);
-  console.log(token);
-  const userId = useSelector((state) => state.auth.user?.id);
+  const cartItems = useSelector((state) => state.cart.items);
+  console.log(cartItems.length);
 
   const [cardNumber, setCardNumber] = useState("");
   const [expiration, setExpiration] = useState("");
   const [cvv, setCvv] = useState("");
   const [oraRitiro, setOraRitiro] = useState("");
   const [messaggio, setMessaggio] = useState("");
+  const [messaggio1, setMessaggio1] = useState(false);
+  const [messaggio2, setMessaggio2] = useState(false);
   const [oraMinima, setOraMinima] = useState("");
 
   useEffect(() => {
@@ -21,25 +25,9 @@ const Checkout = () => {
 
     const now = new Date();
     now.setHours(now.getHours() + 1);
-
     const formattedTime = now.toISOString().substring(11, 16);
     setOraMinima(formattedTime);
   }, []);
-
-  const getBadgeColor = (stato) => {
-    switch (stato.toLowerCase()) {
-      case "in preparazione":
-        return "warning";
-      case "pronto":
-        return "success";
-      case "consegnato":
-        return "primary";
-      case "annullato":
-        return "danger";
-      default:
-        return "secondary";
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -57,13 +45,20 @@ const Checkout = () => {
     selectedPickupTime.setSeconds(0);
     selectedPickupTime.setMilliseconds(0);
 
-    const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000); // ora + 1 ora
+    const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
+
+    if (parseInt(hours, 10) < 8 || parseInt(hours, 10) >= 20) {
+      setMessaggio1(true);
+      return;
+    } else {
+      setMessaggio1(false);
+    }
 
     if (selectedPickupTime < oneHourLater) {
-      setMessaggio(
-        "⚠️ L'orario di ritiro deve essere almeno un'ora dopo l'orario attuale!"
-      );
+      setMessaggio2(true);
       return;
+    } else {
+      setMessaggio2(false);
     }
 
     try {
@@ -90,6 +85,11 @@ const Checkout = () => {
     }
   };
 
+  if (!cartItems || cartItems.length < 1) {
+    navigate("/prodotti");
+    return null;
+  }
+
   return (
     <div className="container mt-5 p-4 shadow rounded loginCard">
       <h2 className="mb-4 text-center">Checkout</h2>
@@ -99,9 +99,10 @@ const Checkout = () => {
       )}
 
       <form onSubmit={handleSubmit}>
-        {/* Dati pagamento */}
         <div className="mb-3">
-          <label className="form-label">Numero Carta</label>
+          <label className="form-label">
+            <i className="bi bi-credit-card"></i> Numero Carta
+          </label>
           <input
             type="text"
             className="form-control"
@@ -114,7 +115,9 @@ const Checkout = () => {
 
         <div className="row">
           <div className="col-md-6 mb-3">
-            <label className="form-label">Data di Scadenza</label>
+            <label className="form-label">
+              <i className="bi bi-credit-card-2-front"></i> Data di Scadenza
+            </label>
             <input
               type="text"
               className="form-control"
@@ -126,7 +129,8 @@ const Checkout = () => {
           </div>
 
           <div className="col-md-6 mb-3">
-            <label className="form-label">CVV</label>
+            <img src={cvvIcon} alt="Cvv" width={20} />
+            <label className="form-label ms-1">Cvv</label>
             <input
               type="text"
               className="form-control"
@@ -138,15 +142,30 @@ const Checkout = () => {
           </div>
         </div>
 
-        {/* Ora ritiro */}
-        <input
-          type="time"
-          className="form-control"
-          value={oraRitiro}
-          onChange={(e) => setOraRitiro(e.target.value)}
-          min={oraMinima}
-          required
-        />
+        <div>
+          <label className="form-label">
+            <i className="bi bi-clock-history"></i> Ora Ritiro
+          </label>
+          <input
+            type="time"
+            className="form-control"
+            value={oraRitiro}
+            onChange={(e) => setOraRitiro(e.target.value)}
+            min={oraMinima}
+            required
+          />
+        </div>
+        {messaggio1 && (
+          <p className="mt-1 mb-0 text-danger">
+            ⚠️ L'orario deve essere tra le ore 08:00 e le ore 20:00
+          </p>
+        )}
+        {messaggio2 && (
+          <p className="text-danger">
+            ⚠️ L'orario di ritiro deve essere almeno un'ora dopo l'orario
+            attuale!
+          </p>
+        )}
 
         <button type="submit" className="btn btn-success w-100 mt-3">
           Conferma Ordine

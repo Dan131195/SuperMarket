@@ -17,6 +17,8 @@ import StoricoOrdini from "./components/StoricoOrdini";
 import Error from "./components/Error";
 import Profilo from "./components/Profilo";
 import RegisterAdmin from "./components/RegisterAdmin";
+import StoricoOrdiniLista from "./components/StoricoOrdiniLista";
+import ListaProfili from "./components/ListaProfili";
 
 function App() {
   const dispatch = useDispatch();
@@ -46,8 +48,13 @@ function App() {
 
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/storico-ordini" element={<StoricoOrdini />} />
+            <Route
+              path="/storico-ordini-lista"
+              element={<StoricoOrdiniLista />}
+            />
 
             <Route path="/profilo" element={<Profilo />} />
+            <Route path="/lista-profili" element={<ListaProfili />} />
 
             <Route path="*" element={<Error />} />
           </Routes>

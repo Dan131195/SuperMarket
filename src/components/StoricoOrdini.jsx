@@ -8,10 +8,11 @@ import {
   Alert,
   Button,
   Modal,
+  CardFooter,
 } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import emptyCart from "../assets/img/empty-cart.png";
-import { Link, Navigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const StoricoOrdini = () => {
   const [ordini, setOrdini] = useState([]);
@@ -19,17 +20,21 @@ const StoricoOrdini = () => {
   const [errore, setErrore] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [ordineSelezionato, setOrdineSelezionato] = useState(null);
-  const [modificaOrdineId, setModificaOrdineId] = useState(null);
-  const [nuovoStatoId, setNuovoStatoId] = useState("");
 
   const { user, token } = useSelector((state) => state.auth);
   const userId = user?.id;
-  const userRole = user?.roles;
-  console.log(userRole);
+
+  const navigate = useNavigate();
+
+  // Funzione per aggiungere ore a una data
+  const aggiungiOre = (data, ore) => {
+    const nuovaData = new Date(data);
+    nuovaData.setHours(nuovaData.getHours() + ore);
+    return nuovaData;
+  };
 
   const fetchOrdini = async () => {
     try {
-      const userId = user?.id;
       const res = await fetch(
         `https://localhost:7006/api/ordine/storico/${userId}`,
         {
@@ -50,6 +55,9 @@ const StoricoOrdini = () => {
 
   useEffect(() => {
     document.title = "SpeedMarket - I miei Ordini";
+    if (!token) {
+      navigate("/login");
+    }
 
     if (userId) {
       fetchOrdini();
@@ -67,7 +75,7 @@ const StoricoOrdini = () => {
       case "annullato":
         return "warning";
       default:
-        return "secondary"; // per qualsiasi altro stato
+        return "secondary";
     }
   };
 
@@ -79,39 +87,6 @@ const StoricoOrdini = () => {
   const handleCloseModal = () => {
     setShowModal(false);
     setOrdineSelezionato(null);
-  };
-
-  // Cambia Stato Ordine SOLO per Admin / SuperAdmin
-  const handleCambiaStato = (ordineId) => {
-    setModificaOrdineId(ordineId);
-  };
-
-  const salvaNuovoStato = async (ordineId) => {
-    if (!nuovoStatoId) return alert("Seleziona un nuovo stato!");
-
-    try {
-      const res = await fetch(
-        `https://localhost:7006/api/ordine/${ordineId}/stato`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ statoOrdineId: parseInt(nuovoStatoId) }),
-        }
-      );
-
-      if (!res.ok) throw new Error("Errore nella modifica dello stato");
-
-      alert("✅ Stato modificato!");
-      setModificaOrdineId(null);
-      setNuovoStatoId("");
-      fetchOrdini();
-    } catch (err) {
-      console.error(err);
-      alert("❌ Errore nel salvataggio stato");
-    }
   };
 
   if (loading) {
@@ -139,7 +114,7 @@ const StoricoOrdini = () => {
   return (
     <div className="container py-4">
       <h2 className="text-light mb-4">I miei Ordini</h2>
-      {userRole === undefined && <Navigate to="*" replace />}
+
       {ordini.length === 0 ? (
         <div className="text-center mt-1">
           <div className="text-center d-flex flex-column flex-md-row justify-content-center align-items-center">
@@ -157,83 +132,42 @@ const StoricoOrdini = () => {
         </div>
       ) : (
         <div className="row g-3">
-          {ordini.map((ordine) => (
-            <div className="col-12 col-md-6 col-lg-4" key={ordine.ordineId}>
-              <Card className="shadow-sm h-100">
-                <Card.Body className="d-flex flex-column justify-content-between">
-                  <div>
-                    <Card.Title className="d-flex justify-content-between">
-                      <span>Ordine #{ordine.ordineId.substring(0, 8)}...</span>
-                      <Badge bg={getBadgeColor(ordine.stato)}>
-                        {ordine.stato}
-                      </Badge>
-                    </Card.Title>
+          {[...ordini]
+            .sort((a, b) => new Date(b.dataOrdine) - new Date(a.dataOrdine))
+            .map((ordine) => (
+              <div className="col-12 col-md-6 col-lg-4" key={ordine.ordineId}>
+                <Card className="shadow-sm h-100">
+                  <Card.Body className="d-flex flex-column justify-content-between">
+                    <div>
+                      <Card.Title className="d-flex justify-content-between">
+                        <span>
+                          Ordine #{ordine.ordineId.substring(0, 8)}...
+                        </span>
+                        <Badge bg={getBadgeColor(ordine.stato)}>
+                          {ordine.stato}
+                        </Badge>
+                      </Card.Title>
 
-                    <Card.Subtitle className="mb-2 text-muted">
-                      {new Date(ordine.dataOrdine).toLocaleString()}
-                    </Card.Subtitle>
+                      <Card.Subtitle className="mb-2 text-muted">
+                        {aggiungiOre(ordine.dataOrdine, 2).toLocaleString()}
+                      </Card.Subtitle>
 
-                    <h5 className="text-success mt-2">
-                      Totale: € {ordine.totale.toFixed(2)}
-                    </h5>
-                  </div>
-
-                  {modificaOrdineId === ordine.ordineId ? (
-                    <div className="d-flex flex-column gap-2 w-100">
-                      <select
-                        className="form-select"
-                        value={nuovoStatoId}
-                        onChange={(e) => setNuovoStatoId(e.target.value)}
-                      >
-                        <option value="">Seleziona stato...</option>
-                        <option value="2">Pronto</option>
-                        <option value="3">Ritirato</option>
-                        <option value="4">Annullato</option>
-                      </select>
-                      <div className="d-flex gap-1 justify-content-between align-items-center">
-                        <Button
-                          variant="success"
-                          onClick={() => salvaNuovoStato(ordine.ordineId)}
-                          disabled={!nuovoStatoId}
-                          className="w-50"
-                        >
-                          Salva
-                        </Button>
-
-                        <Button
-                          variant="outline-secondary"
-                          onClick={() => setModificaOrdineId(null)}
-                          className="w-50"
-                        >
-                          Annulla
-                        </Button>
-                      </div>
+                      <h5 className="text-success mt-2">
+                        Totale: € {ordine.totale.toFixed(2)}
+                      </h5>
                     </div>
-                  ) : (
-                    <div className="d-flex gap-1 justify-content-between align-items-center">
-                      <Button
-                        variant="outline-primary fw-bold"
-                        className="w-50"
-                        onClick={() => handleShowModal(ordine)}
-                      >
-                        Dettagli
-                      </Button>
-
-                      {userRole == "Admin" || userRole == "SuperAdmin" ? (
-                        <Button
-                          variant="outline-warning fw-bold"
-                          className="w-50"
-                          onClick={() => handleCambiaStato(ordine.ordineId)}
-                        >
-                          Cambia Stato
-                        </Button>
-                      ) : null}
-                    </div>
-                  )}
-                </Card.Body>
-              </Card>
-            </div>
-          ))}
+                  </Card.Body>
+                  <CardFooter>
+                    <Button
+                      variant="secondary"
+                      onClick={() => handleShowModal(ordine)}
+                    >
+                      Dettagli
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </div>
+            ))}
         </div>
       )}
 
@@ -247,10 +181,17 @@ const StoricoOrdini = () => {
             <>
               <p>
                 <strong>Data:</strong>{" "}
-                {new Date(ordineSelezionato.dataOrdine).toLocaleString()}
+                {new Date(ordineSelezionato.dataOrdine).toLocaleDateString()}
               </p>
               <p>
-                <strong>Stato:</strong> {ordineSelezionato.stato}
+                <strong>Ritiro (previsto):</strong>{" "}
+                {aggiungiOre(ordineSelezionato.dataOrdine, 3).toLocaleString()}
+              </p>
+              <p>
+                <strong>Stato:</strong>{" "}
+                <Badge bg={getBadgeColor(ordineSelezionato.stato)}>
+                  {ordineSelezionato.stato}
+                </Badge>
               </p>
 
               <ListGroup variant="flush" className="mb-3">

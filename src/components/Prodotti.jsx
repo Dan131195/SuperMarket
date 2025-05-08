@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Modal, Button, Spinner, Alert, ListGroup } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { setCart } from "../store/cartSlice";
+import { useNavigate } from "react-router-dom";
 
 import fruitIcon from "../assets/icons/frutta.png";
 import allCategoriesIcon from "../assets/icons/all-categories.png";
@@ -15,12 +16,18 @@ import biscuitIcon from "../assets/icons/biscuit.png";
 import pastaIcon from "../assets/icons/pasta.png";
 import eggIcon from "../assets/icons/egg.png";
 import canIcon from "../assets/icons/dispensa.png";
+import vegetableIcon from "../assets/icons/verdure.png";
+import salumeIcon from "../assets/icons/salume.png";
+import snacksIcon from "../assets/icons/snack.png";
+import condimentsIcon from "../assets/icons/condimenti.png";
+import breakfastIcon from "../assets/icons/colazione.png";
+import frozenIcon from "../assets/icons/surgelati.png";
 
 import notFound from "../assets/img/notFound.png";
-import { Link } from "react-router-dom";
 
 const Prodotti = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const token = useSelector((state) => state.auth.token);
   console.log(token);
 
@@ -65,36 +72,36 @@ const Prodotti = () => {
       ]
     : null;
 
+  const fetchCategorie = async () => {
+    try {
+      const res = await fetch("https://localhost:7006/api/Categoria");
+      if (!res.ok) throw new Error("Errore nel recupero delle categorie");
+      const data = await res.json();
+      setCategorie(data);
+    } catch (err) {
+      console.log(err);
+      setErrore("Errore nel recupero delle categorie");
+    } finally {
+      setLoadingCategorie(false);
+    }
+  };
+
+  const fetchProdotti = async () => {
+    try {
+      const res = await fetch("https://localhost:7006/api/Prodotto");
+      if (!res.ok) throw new Error("Errore nel recupero dei prodotti");
+      const data = await res.json();
+      setProdotti(data);
+    } catch (err) {
+      console.log(err);
+      setErrore("Errore nel recupero dei prodotti");
+    } finally {
+      setLoadingProdotti(false);
+    }
+  };
+
   useEffect(() => {
     document.title = "SpeedMarket - Prodotti";
-
-    const fetchCategorie = async () => {
-      try {
-        const res = await fetch("https://localhost:7006/api/Categoria");
-        if (!res.ok) throw new Error("Errore nel recupero delle categorie");
-        const data = await res.json();
-        setCategorie(data);
-      } catch (err) {
-        console.log(err);
-        setErrore("Errore nel recupero delle categorie");
-      } finally {
-        setLoadingCategorie(false);
-      }
-    };
-
-    const fetchProdotti = async () => {
-      try {
-        const res = await fetch("https://localhost:7006/api/Prodotto");
-        if (!res.ok) throw new Error("Errore nel recupero dei prodotti");
-        const data = await res.json();
-        setProdotti(data);
-      } catch (err) {
-        console.log(err);
-        setErrore("Errore nel recupero dei prodotti");
-      } finally {
-        setLoadingProdotti(false);
-      }
-    };
 
     fetchCategorie();
     fetchProdotti();
@@ -135,7 +142,7 @@ const Prodotti = () => {
       alert("✅ Prodotto creato con successo!");
       resetForm();
       setShowCreateModal(false);
-      window.location.reload(); // Per aggiornare subito la lista
+      window.location.reload();
     } catch (err) {
       console.error(err);
       alert("❌ Errore nella creazione");
@@ -228,6 +235,18 @@ const Prodotti = () => {
         return canIcon;
       case "Uova":
         return eggIcon;
+      case "Salumi":
+        return salumeIcon;
+      case "Verdura":
+        return vegetableIcon;
+      case "Snack":
+        return snacksIcon;
+      case "Condimenti":
+        return condimentsIcon;
+      case "Colazione":
+        return breakfastIcon;
+      case "Surgelati":
+        return frozenIcon;
       default:
         return defaultIcon;
     }
@@ -275,6 +294,7 @@ const Prodotti = () => {
       });
       setMessaggioAggiunta(`✅ ${prodotto.nomeProdotto} aggiunto al carrello`);
       await aggiornaCarrelloRedux();
+      fetchProdotti();
     } catch (err) {
       seterroreContenuto("❌ " + err.message);
     } finally {
@@ -291,7 +311,7 @@ const Prodotti = () => {
 
   const handleClose = () => setShowModal(false);
 
-  const prodottiFiltrati = categoriaSelezionata
+  let prodottiFiltrati = categoriaSelezionata
     ? prodotti.filter((p) => p.categoriaNome === categoriaSelezionata)
     : prodotti;
 
@@ -320,29 +340,23 @@ const Prodotti = () => {
 
   return (
     <div>
-      <div className="text-white m-2 m-lg-3 m-xl-4 mb-0  d-none d-md-block">
+      <div className="text-white ps-1 mb-3 w-100 d-none d-md-block breadCrumbProdotti">
         {categoriaSelezionata ? (
-          <div>
-            <Link to={"/"} className="text-white text-decoration-none">
-              Home /{" "}
-            </Link>
-            <Link to={"/prodotti"} className="text-white text-decoration-none">
-              Prodotti /{" "}
-            </Link>
+          <div className="m-auto prodottiContainer">
+            <p className="text-white d-inline">Home / </p>
+            <p className="text-white d-inline">Prodotti / </p>
             <span className="speedMarket border-bottom fw-bold">
               {categoriaSelezionata}
             </span>{" "}
           </div>
         ) : (
-          <div>
-            <Link to={"/"} className="text-white text-decoration-none">
-              Home /{" "}
-            </Link>
+          <div className="m-auto prodottiContainer">
+            <p className="text-white d-inline">Home / </p>
             <span className="speedMarket border-bottom fw-bold">Prodotti</span>
           </div>
         )}
       </div>
-      <div className="mx-md-1 mx-lg-2 mx-lg-3 mx-xxl-4">
+      <div className="m-auto prodottiContainer">
         <div className="py-3 py-lg-0 row m-0">
           {/*  */}
           {/* Categorie SideBar */}
@@ -350,9 +364,8 @@ const Prodotti = () => {
             className="d-none d-md-block col-md-3 col-xl-2  h-100 p-0 pe-3 ps-1 sidebar-sticky"
             id="categoryList2"
           >
-            <h5 className="text-light border-bottom border-4 pb-2">
-              Categorie
-            </h5>
+            <h5 className="text-light ">Categorie</h5>
+            <hr className="speedMarket border-3 opacity-100" />
             <div>
               <p
                 className={` text-white m-0 py-1 gap-2 cursor-pointer  ${
@@ -404,7 +417,6 @@ const Prodotti = () => {
                     <div
                       id="categoryCarousel"
                       className="d-flex pb-2 overflow-auto"
-                      // style={{ scrollSnapType: "x mandatory", gap: "10px" }}
                     >
                       {/* Tutte */}
                       <div
@@ -459,7 +471,7 @@ const Prodotti = () => {
                     </div>
                   </div>
                 </div>
-                <div id="prodottiSticky">
+                <div className="ps-lg-3">
                   <div className="mb-2 ps-3 ps-lg-2 text-light ">
                     <h2>I Nostri Prodotti</h2>
 
@@ -491,23 +503,27 @@ const Prodotti = () => {
                         key={prodotto.prodottoId}
                       >
                         <div
-                          className={`card w-100 d-flex flex-column productCard ${
-                            prodotto.stock === 0 ? "opacity-50" : ""
-                          }`}
+                          className={`card w-100 d-flex flex-column productCard `}
                         >
-                          <div className="w-100 bg-white p-1">
-                            <img
-                              src={`https://localhost:7006${prodotto.immagineFile}`}
-                              className="card-img-top m-auto rounded-2 productImage"
-                              alt={prodotto.nomeProdotto}
-                            />
+                          <div className="w-100 bg-white">
+                            <div
+                              className={`${
+                                prodotto.stock === 0 ? "prodottoesaurito" : ""
+                              }`}
+                            >
+                              <img
+                                src={`https://localhost:7006${prodotto.immagineFile}`}
+                                className="card-img-top m-auto productImage "
+                                alt={prodotto.nomeProdotto}
+                              />
+                            </div>
                           </div>
 
-                          <div className="card-body d-flex flex-column justify-content-between border-top border-3">
+                          <div className="card-body d-flex flex-column justify-content-between border-top border-3 position-relative">
                             <h6 className="card-title">
                               {prodotto.nomeProdotto}
                             </h6>
-                            <p className="card-text text-muted">
+                            <p className="card-text speedMarket fw-bold">
                               {prodotto.categoriaNome}
                             </p>
 
@@ -516,12 +532,12 @@ const Prodotti = () => {
                             </div>
                             <div>
                               {prodotto.stock === 0 && (
-                                <p className="text-danger">Esaurito!</p>
+                                <p className="text-danger m-0 ">Esaurito!</p>
                               )}
                             </div>
                             <div>
                               <Button
-                                className="btn btn-success w-100 mt-2"
+                                className="btn btn-success w-100 mt-2 nuovoProdottoBtn"
                                 onClick={() => handleShow(prodotto)}
                               >
                                 <i className="bi bi-cart4 text-light"></i>
@@ -574,11 +590,6 @@ const Prodotti = () => {
               contentClassName="custom-modal"
             >
               <div className="p-2 bg-modaleProdotto text-white">
-                {/* <Modal.Header>
-                <Modal.Title className="text-center w-100">
-                  <p className="">{selectedProdotto.nomeProdotto}</p>
-                </Modal.Title>
-              </Modal.Header> */}
                 <Modal.Body className="text-start text-light">
                   <div className="text-center">
                     <img
@@ -593,8 +604,31 @@ const Prodotti = () => {
                   </div>
                   <p className="text-center mb-3 fs-5">
                     <strong>{selectedProdotto.nomeProdotto}</strong>
+
                     <hr className="border-white border-3" />
                   </p>
+
+                  {userRole === "SuperAdmin" && (
+                    <div className=" w-100">
+                      <p className="speedMarket fw-bold">
+                        Id prodotto :{" "}
+                        <span className="text-light fw-normal">
+                          {selectedProdotto.prodottoId}
+                        </span>
+                      </p>
+                    </div>
+                  )}
+
+                  {userRole === "Admin" && (
+                    <div className=" w-100">
+                      <p className="speedMarket fw-bold">
+                        Id prodotto :{" "}
+                        <span className="text-light fw-normal">
+                          {selectedProdotto.prodottoId}
+                        </span>
+                      </p>
+                    </div>
+                  )}
 
                   <p>
                     <strong className="speedMarket">Categoria :</strong>{" "}
@@ -688,16 +722,7 @@ const Prodotti = () => {
                 )}
               </Modal.Title>
             </Modal.Header>
-            {/* <Modal.Body className="text-center bg-dark text-light">
-            {/* {messaggioContenuto} 
-            {messaggioAggiunta && (
-              <div className="d-flex justify-content-center align-items-center">
-                <i class="bi bi-cart-check fs-2 m-0 me-2 text-success "></i>
-                <p className="text-center m-0">Prodotto aggiunto</p>
-              </div>
-            )}
-            {erroreAggiunta}
-          </Modal.Body> */}
+
             <Modal.Footer className="bg-dark border-0">
               <Button
                 variant="danger"

@@ -1,221 +1,276 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Modal, Button, Table, Alert, Spinner } from "react-bootstrap";
+import { Modal, Button, Alert, Spinner } from "react-bootstrap";
 import icon1 from "../assets/images/icon-1.png";
-import icon2 from "../assets/images/icon-2.png";
-import icon3 from "../assets/images/icon-3.png";
-import icon4 from "../assets/images/icon-4.png";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
+import wallpaper1 from "../assets/img/wallpaper1.jpg";
+import wallpaper2 from "../assets/img/wallpaper2.jpg";
+import wallpaper3 from "../assets/img/wallpaper3.jpg";
 
 const Profilo = () => {
   const { token } = useSelector((state) => state.auth);
-
   const [cliente, setCliente] = useState(null);
-  const [clienti, setClienti] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [errore, setErrore] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editForm, setEditForm] = useState({
+    nome: "",
+    cognome: "",
+    email: "",
+    codiceFiscale: "",
+    indirizzo: "",
+  });
+  const [errore, setErrore] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState(null);
+  const [userId, setUserId] = useState(null);
 
-  const listIconsProfile = [icon1, icon2, icon3, icon4];
+  const navigate = useNavigate();
 
-  let payload = null;
-  let userRole = null;
-  let userId = null;
+  const listWallpaper = [wallpaper1, wallpaper2, wallpaper3];
 
-  if (token) {
-    try {
-      payload = JSON.parse(atob(token.split(".")[1]));
-      userRole =
-        payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
-      userId =
-        payload[
-          "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
-        ];
-    } catch (error) {
-      console.error("Token non valido", error);
+  useEffect(() => {
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        setUserRole(
+          payload[
+            "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+          ]
+        );
+        setUserId(
+          payload[
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
+          ]
+        );
+      } catch (error) {
+        console.error("Token non valido", error);
+        navigate("/login");
+      }
     }
-  }
+  }, [token]);
+
+  const fetchCliente = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`https://localhost:7006/api/cliente/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error("Errore nel recupero dati profilo");
+
+      const data = await res.json();
+      setCliente(data);
+      setErrore(false);
+      console.log(data);
+    } catch (err) {
+      console.log(err);
+      setErrore(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOpenEditModal = () => {
+    setEditForm({
+      nome: cliente.nome,
+      cognome: cliente.cognome,
+      email: cliente.email,
+      codiceFiscale: cliente.codiceFiscale,
+      indirizzo: cliente.indirizzo,
+    });
+    setShowEditModal(true);
+  };
+
+  const handleSaveEdit = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("Nome", editForm.nome);
+      formData.append("Cognome", editForm.cognome);
+      formData.append("Email", editForm.email);
+      formData.append("CodiceFiscale", editForm.codiceFiscale);
+      formData.append("Indirizzo", editForm.indirizzo);
+      if (editForm.immagineFile) {
+        formData.append("ImmagineFile", editForm.immagineFile);
+      }
+
+      const res = await fetch(
+        `https://localhost:7006/api/cliente/${cliente.clienteId}/modifica`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+
+      if (!res.ok) throw new Error("Errore aggiornamento profilo");
+
+      alert("✅ Profilo aggiornato!");
+      setShowEditModal(false);
+      fetchCliente();
+    } catch (err) {
+      console.error(err);
+      alert("❌ Errore aggiornamento profilo");
+    }
+  };
+
+  const wallpaper = () => {
+    const wallpaper = Math.floor(Math.random() * listWallpaper.length);
+    return listWallpaper[wallpaper];
+  };
 
   useEffect(() => {
     document.title = "SpeedMarket - Profilo";
 
-    const fetchClienti = async () => {
-      try {
-        const res = await fetch(`https://localhost:7006/api/cliente`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!res.ok) throw new Error("Errore nel recupero clienti");
-
-        const data = await res.json();
-        setClienti(data);
-      } catch (err) {
-        console.error(err);
-        alert("❌ Errore caricamento lista clienti");
-      }
-    };
-
-    const fetchCliente = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(
-          `https://localhost:7006/api/cliente/${userId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-
-        if (!res.ok) throw new Error("Errore nel recupero dati profilo");
-
-        const data = await res.json();
-        setCliente(data);
-      } catch (err) {
-        console.error(err);
-        setErrore("Errore caricamento profilo");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (userRole === "User" || userRole === "Seller") {
-      fetchCliente();
-    } else {
-      fetchClienti();
-    }
-  }, [token, userId]);
-
-  const handleIconSelect = (icon) => {
-    // setSelectedIcon(icon);
-    localStorage.setItem("selectedProfileIcon", icon);
-  };
+    fetchCliente();
+  }, [userId]);
 
   return (
     <div className="container py-4">
-      {loading && (
-        <div className="text-center">
-          <Spinner
-            className="display-1"
-            animation="border"
-            variant="success"
-            style={{ width: "7rem", height: "7rem" }}
-          />
-        </div>
-      )}
-
       {errore && (
         <div className="container py-5">
           <Alert variant="danger" className="text-center">
-            {errore}
+            Errore nel caricamento del profilo..
           </Alert>
         </div>
       )}
 
-      {userRole === "Admin" || userRole === "SuperAdmin" ? (
-        <div className="mb-4">
-          <h2 className="text-light mb-4">Lista profili</h2>
-
-          <Table striped bordered hover responsive>
-            <thead>
-              <tr>
-                <th>Nome</th>
-                <th>Email</th>
-                <th>Codice Fiscale</th>
-              </tr>
-            </thead>
-            <tbody>
-              {clienti.map((c) => (
-                <tr key={c.clienteId}>
-                  <td>{c.nomeCompleto}</td>
-                  <td>{c.email}</td>
-                  <td>{c.codiceFiscale}</td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
+      {loading && (
+        <div className="text-center w-100">
+          <Spinner variant="success"></Spinner>
+          <p className="text-center fs-6">Caricamento profilo in corso..</p>
         </div>
-      ) : (
-        cliente && (
-          <div className="container">
-            <h2 className="text-light mb-4">Il Mio Profilo</h2>
+      )}
 
-            <div className="card shadow p-4">
-              <h4 className="speedMarket text-center  mb-3">
-                Benvenuto {cliente.nome}!
-              </h4>
-
-              <div className="mb-3 d-flex justify-content-between align-items-center">
-                <p className="m-0">
-                  <strong>Nome:</strong> {cliente.nome}
-                </p>
-                <Link>Modifica Profilo</Link>
+      {cliente && (
+        <div className="m-auto profilePage">
+          <h1 className="text-light mb-4">Il Mio Profilo</h1>
+          <div className="card shadow">
+            <div className="w-100 mb-1 position-relative">
+              <img src={wallpaper()} alt="" className="w-100" height={150} />
+              <div className="position-absolute profileImg">
+                <img
+                  src={
+                    cliente.immagineProfilo == null
+                      ? icon1
+                      : `https://localhost:7006/${cliente.immagineProfilo}`
+                  }
+                  alt="Icona Profilo"
+                  width={80}
+                  height={80}
+                  className="rounded-circle border border-2 ms-2 bg-light"
+                />
               </div>
+            </div>
+            <div className="p-4 profileContainer text-light">
+              <h4 className=" mb-3">Ciao {cliente.nome}!</h4>
               <p>
-                <strong>Cogome:</strong> {cliente.cognome}
+                <strong className="speedMarket">Nome: </strong>
+                <span>{cliente.nome}</span>
               </p>
               <p>
-                <strong>Codice Fiscale:</strong> {cliente.codiceFiscale}
+                <strong className="speedMarket">Cognome: </strong>{" "}
+                <span>{cliente.cognome}</span>
               </p>
-
-              <div className="mb-3 d-flex justify-content-between align-items-center">
-                <p className="m-0">
-                  <strong>Email:</strong> {cliente.email}
-                </p>
-                <Link className="modificaLink">Modifica Email</Link>
-              </div>
-
-              <div className="mb-3 d-flex justify-content-between align-items-center">
-                <p className="m-0">
-                  <strong>Indirizzo:</strong> {cliente.indirizzo}
-                </p>
-                <Link className="modificaLink">Modifica Indirizzo</Link>
-              </div>
-
-              <div className="mb-3 d-flex justify-content-between align-items-center">
-                <div className="d-flex align-items-center">
-                  <p className="m-0 ">
-                    <strong>Immagine profilo:</strong>
-                  </p>
-                  <img
-                    src={
-                      cliente.immagineProfilo
-                        ? `https://localhost:7006/${cliente.immagineProfilo}`
-                        : icon1
-                    }
-                    alt="Icona Profilo"
-                    width={80}
-                    height={80}
-                    className="rounded-circle border border-2 ms-2"
-                  />
-                </div>
-
-                <Link className="modificaLink">Modifica Immagine</Link>
-              </div>
-
-              <div className="mb-3">
-                <h5 className="text-success">Scegli la tua icona profilo:</h5>
-                <div className="d-flex justify-content-center gap-3 mt-2">
-                  {listIconsProfile.map((icon, idx) => (
-                    <img
-                      key={idx}
-                      src={icon}
-                      alt={`Icon ${idx}`}
-                      width={60}
-                      height={60}
-                      className={`rounded-circle border `}
-                      style={{ cursor: "pointer" }}
-                      onClick={() => handleIconSelect(icon)}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <div className="d-flex gap-2 mt-3">
-                <Button variant="warning">Modifica Profilo</Button>
-                <Button variant="danger">Elimina Account</Button>
+              <p>
+                <strong className="speedMarket">Email: </strong>{" "}
+                <span>{cliente.email}</span>
+              </p>
+              <p>
+                <strong className="speedMarket">Codice Fiscale: </strong>{" "}
+                <span>{cliente.codiceFiscale}</span>
+              </p>
+              <p>
+                <strong className="speedMarket">Indirizzo: </strong>{" "}
+                <span>{cliente.indirizzo}</span>
+              </p>
+              <div className="text-end">
+                <Button variant="primary" onClick={() => handleOpenEditModal()}>
+                  Modifica Profilo
+                </Button>
               </div>
             </div>
           </div>
-        )
+        </div>
       )}
+
+      <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Modifica Profilo</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <form>
+            <label className="m-2">Nome</label>
+            <input
+              type="text"
+              className="form-control mb-2"
+              placeholder="Nome"
+              value={editForm.nome}
+              onChange={(e) =>
+                setEditForm({ ...editForm, nome: e.target.value })
+              }
+            />
+            <label className="m-2">Cognome</label>
+            <input
+              type="text"
+              className="form-control mb-2"
+              placeholder="Cognome"
+              value={editForm.cognome}
+              onChange={(e) =>
+                setEditForm({ ...editForm, cognome: e.target.value })
+              }
+            />
+            <label className="m-2">Email</label>
+            <input
+              type="email"
+              className="form-control mb-2"
+              placeholder="Email"
+              value={editForm.email}
+              onChange={(e) =>
+                setEditForm({ ...editForm, email: e.target.value })
+              }
+            />
+            <label className="m-2">Codice Fiscale</label>
+            <input
+              type="text"
+              className="form-control mb-2"
+              placeholder="Codice Fiscale"
+              value={editForm.codiceFiscale}
+              onChange={(e) =>
+                setEditForm({ ...editForm, codiceFiscale: e.target.value })
+              }
+            />
+            <label className="m-2">Indirizzo</label>
+            <input
+              type="text"
+              className="form-control mb-2"
+              placeholder="Indirizzo"
+              value={editForm.indirizzo}
+              onChange={(e) =>
+                setEditForm({ ...editForm, indirizzo: e.target.value })
+              }
+            />
+            <label className="m-2">Immagine del profilo</label>
+            <input
+              type="file"
+              className="form-control mb-2"
+              onChange={(e) =>
+                setEditForm({ ...editForm, immagineFile: e.target.files[0] })
+              }
+            />
+          </form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowEditModal(false)}>
+            Annulla
+          </Button>
+          <Button variant="success" onClick={handleSaveEdit}>
+            Salva Modifiche
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

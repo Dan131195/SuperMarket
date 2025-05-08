@@ -6,9 +6,6 @@ import logoImg from "../assets/img/logo.png";
 import logoImg2 from "../assets/img/logo3.png";
 import fastCart from "../assets/img/fastCart2.png";
 
-// import promo2X1 from "../assets/img/promo2X1.png";
-// import fruttaVerdura from "../assets/img/fruttaVerdura.png";
-
 import fruitIcon from "../assets/icons/frutta.png";
 import defaultIcon from "../assets/icons/default.png";
 import breadIcon from "../assets/icons/pane.png";
@@ -19,14 +16,20 @@ import biscuitIcon from "../assets/icons/biscuit.png";
 import pastaIcon from "../assets/icons/pasta.png";
 import eggIcon from "../assets/icons/egg.png";
 import canIcon from "../assets/icons/dispensa.png";
+import vegetableIcon from "../assets/icons/verdure.png";
+import salumeIcon from "../assets/icons/salume.png";
+import snacksIcon from "../assets/icons/snack.png";
+import condimentsIcon from "../assets/icons/condimenti.png";
+import breakfastIcon from "../assets/icons/colazione.png";
+import frozenIcon from "../assets/icons/surgelati.png";
 
 const Home = () => {
   const [prodotti, setProdotti] = useState([]);
-  const [errore, setErrore] = useState(null);
+  const [errore, setErrore] = useState(false);
   const [loadingProdotti, setLoadingProdotti] = useState(true);
   const [categorie, setCategorie] = useState([]);
   const [loadingCategorie, setLoadingCategorie] = useState(true);
-  const [erroreCategorie, setErroreCategorie] = useState(null);
+  const [erroreCategorie, setErroreCategorie] = useState(false);
 
   const fetchProdotti = async () => {
     try {
@@ -36,7 +39,7 @@ const Home = () => {
       setProdotti(data);
     } catch (err) {
       console.log(err);
-      setErrore("Errore nel recupero dei prodotti");
+      setErrore(true);
     } finally {
       setLoadingProdotti(false);
     }
@@ -50,7 +53,7 @@ const Home = () => {
       setCategorie(data);
     } catch (err) {
       console.log(err);
-      setErroreCategorie("Errore nel recupero delle categorie");
+      setErroreCategorie(true);
     } finally {
       setLoadingCategorie(false);
     }
@@ -100,11 +103,22 @@ const Home = () => {
         return canIcon;
       case "Uova":
         return eggIcon;
+      case "Salumi":
+        return salumeIcon;
+      case "Verdura":
+        return vegetableIcon;
+      case "Snack":
+        return snacksIcon;
+      case "Condimenti":
+        return condimentsIcon;
+      case "Colazione":
+        return breakfastIcon;
+      case "Surgelati":
+        return frozenIcon;
       default:
         return defaultIcon;
     }
   };
-
   return (
     <div className="homeContainer d-flex align-items-center justify-content-center text-white py-3">
       <div className="homeContainerInside text-center my-2 my-lg-4 my-xl-0">
@@ -169,26 +183,28 @@ const Home = () => {
                   )}
 
                   {errore && (
-                    <div className="bg-secondary">
-                      <p className="text-danger">
-                        Errore nel caricamento dei prodotti..
+                    <div className=" text-center w-100">
+                      <p className="text-danger fw-bold">
+                        ❌ Errore nel caricamento dei prodotti..
                       </p>
                     </div>
                   )}
 
                   {/* Mappatura Prodotti */}
                   {prodotti.map((p) => (
-                    <div
-                      key={p.prodottoId}
-                      className="d-flex flex-column justify-content-center px-2"
-                    >
-                      <img
-                        src={`https://localhost:7006${p.immagineFile}`}
-                        alt={p.nomeProdotto}
-                        className="rounded-4 py-2"
-                        width={110}
-                        height={110}
-                      />
+                    <div className="py-1">
+                      <div
+                        key={p.prodottoId}
+                        className="d-flex flex-column justify-content-center px-2"
+                      >
+                        <img
+                          src={`https://localhost:7006${p.immagineFile}`}
+                          alt={p.nomeProdotto}
+                          className="rounded-4 nuovoProdottoBtn"
+                          width={110}
+                          height={110}
+                        />
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -224,9 +240,9 @@ const Home = () => {
                   )}
 
                   {erroreCategorie && (
-                    <div className="bg-secondary">
-                      <p className="text-danger">
-                        Errore nel caricamento dei prodotti..
+                    <div className="text-center w-100">
+                      <p className="text-danger fw-bold">
+                        ❌ Errore nel caricamento delle categorie..
                       </p>
                     </div>
                   )}
@@ -249,62 +265,12 @@ const Home = () => {
                   Ordina online. Ritira in negozio. Più facile di così?
                 </h4>
 
-                <div class="cart-wrapper">
-                  <div class="cart">
+                <div className="cart-wrapper">
+                  <div className="cart">
                     <img src={fastCart} alt="Fast Cart" height={100} />
                   </div>
                 </div>
               </div>
-
-              {/* <div className="mt-1 d-lg-flex  mx-auto justify-content-between justify-content-lg-evenly">
-                <div className=" p-2">
-                  <div className="card homeOpacity bg-light h-100 shadow-sm rounded-4 promos">
-                    <div className="card-body d-flex flex-column justify-content-between text-light">
-                      <h4 className="card-title">🤑 Offerta Speciale</h4>
-                      <p className="card-text d-flex align-items-center">
-                        <span className="d-flex justify-content-between align-items-center ">
-                          <img
-                            src={fruttaVerdura}
-                            alt="Frutta e Verdura"
-                            className=" rounded-4 mb-lg-2"
-                            width={120}
-                          />
-                          <p className="p-0 m-0 ms-1">
-                            Approfitta della promozione del giorno: -30% su
-                            frutta e verdura fresca!
-                          </p>
-                        </span>
-                      </p>
-                      <Link className="btn btn-success mt-3" to="/prodotti">
-                        Scopri di più
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-2">
-                  <div className="card homeOpacity bg-light h-100 shadow-sm rounded-4 promos">
-                    <div className="card-body d-flex flex-column justify-content-between  text-light">
-                      <h4 className="card-title">🔥 Super Sconto</h4>
-                      <p className="card-text d-flex align-items-center">
-                        <span className="d-flex justify-content-between align-items-center ">
-                          <img
-                            src={promo2X1}
-                            alt="Frutta e Verdura"
-                            width={90}
-                          />
-                          <p className="p-0 m-0 ms-1">
-                            Solo per oggi: 2x1 su prodotti per la colazione. Non
-                            fartelo scappare!
-                          </p>
-                        </span>
-                      </p>
-                      <Link className="btn btn-success mt-3" to="/prodotti">
-                        Vedi dettagli
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </div> */}
             </div>
           </div>
         </div>

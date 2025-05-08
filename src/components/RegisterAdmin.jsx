@@ -14,33 +14,31 @@ const RegisterAdmin = () => {
     email: "",
     password: "",
     ruolo: "Admin",
+    codiceFiscale: "0000000000000000",
   });
   const [loading, setLoading] = useState(false);
   const [messaggio, setMessaggio] = useState(null);
-  const [userRole, setUserRole] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split(".")[1]));
-        const role =
-          payload[
-            "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-          ];
-        setUserRole(role);
+  let payload = null;
+  let userRole = null;
 
-        if (userRole !== "SuperAdmin") {
-          navigate("/*");
-        }
-      } catch (error) {
-        console.error("Token non valido", error);
-        navigate("/errore");
-      }
-    } else {
-      navigate("/errore");
+  if (token) {
+    try {
+      payload = JSON.parse(atob(token.split(".")[1]));
+      userRole =
+        payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+      console.log(userRole);
+    } catch (error) {
+      console.error("Token non valido", error);
     }
-  }, [token, navigate]);
+  }
+
+  useEffect(() => {
+    if (userRole !== "SuperAdmin") {
+      navigate("/");
+    }
+  }, []);
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -56,7 +54,7 @@ const RegisterAdmin = () => {
 
     try {
       const res = await fetch(
-        "https://localhost:7006/api/account/registeradmin",
+        "https://localhost:7006/api/account/register/admin",
         {
           method: "POST",
           headers: {
@@ -86,10 +84,6 @@ const RegisterAdmin = () => {
         password: "",
         ruolo: "Admin",
       });
-
-      setTimeout(() => {
-        navigate("/");
-      }, 2000);
     } catch (err) {
       console.error(err);
       setMessaggio(`❌ ${err.message}`);
@@ -177,7 +171,7 @@ const RegisterAdmin = () => {
 
           <div className="d-flex justify-content-center">
             <Button
-              variant="primary"
+              variant="success nuovoProdottoBtn"
               type="submit"
               disabled={loading}
               className="w-50"

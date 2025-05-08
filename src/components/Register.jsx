@@ -1,6 +1,5 @@
-// src/pages/Register.jsx
 import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { Button, Form, Alert, Container, Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { login } from "../services/authService";
@@ -8,7 +7,6 @@ import { login } from "../services/authService";
 import logoImg from "../assets/img/logo3.png";
 
 const Register = () => {
-  const token = useSelector((state) => state.auth.token);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -17,22 +15,10 @@ const Register = () => {
     ruolo: "User",
     codiceFiscale: "",
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [messaggio, setMessaggio] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  // Decodifica token per vedere se l'utente è SuperAdmin
-  let userRole = null;
-  if (token) {
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      userRole =
-        payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
-    } catch (error) {
-      console.error("Token non valido", error);
-    }
-  }
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -43,13 +29,12 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setLoading(true);
     try {
       const res = await fetch("https://localhost:7006/api/account/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
       });
@@ -150,24 +135,6 @@ const Register = () => {
               required
             />
           </Form.Group>
-
-          {/* Se sono SuperAdmin posso scegliere il ruolo */}
-          {userRole === "SuperAdmin" ? (
-            <Form.Group className="mb-3">
-              <Form.Label className="">Ruolo</Form.Label>
-              <Form.Select
-                name="ruolo"
-                value={formData.ruolo}
-                onChange={handleChange}
-              >
-                <option value="User">User</option>
-                <option value="Admin">Admin</option>
-                <option value="SuperAdmin">SuperAdmin</option>
-              </Form.Select>
-            </Form.Group>
-          ) : (
-            <input type="hidden" name="ruolo" value="User" />
-          )}
 
           <Form.Group className="mb-3">
             <Form.Label className="">Codice Fiscale</Form.Label>
